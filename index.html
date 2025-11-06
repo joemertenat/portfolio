@@ -445,77 +445,78 @@
       outline: none;
     }
 
-    /* --- Contact Page Layout (1rem inset + 1rem gap) --- */
-    .contact-layout {
-      position: absolute;
-      /* 1rem all around, more robust than width/height calc */
-      top: 2rem;
-      right: 2rem;
-      bottom: 2rem;
-      left: 2rem;
+         /* Bottom-left anchored contact layout */
+  /* Only affect the last slide (your contact page) */
+.slide:last-child .contact-layout {
+  position: absolute;     /* was: fixed */
+  left: 1rem;
+  right: 1rem;            /* keeps a 1rem margin on the right too */
+  bottom: 1rem;
+  z-index: 10;
 
-      display: grid;
-      grid-template-columns: minmax(280px, 1fr) minmax(320px, 1fr);
-      gap: 2rem;             /* = 1rem space between image and info */
-      align-items: end;       /* bottom-align BOTH columns */
-      overflow: hidden;       /* no overflow outside the inset area */
-    }
+  display: grid;
+  grid-template-columns: auto 1fr; /* image + text */
+  gap: 2rem;
+  align-items: end;
+  padding: 0;
+  overflow: visible;
+}
 
-    /* Let grid children shrink so overflow rules can apply */
-    .contact-layout > * { min-height: 0; }
+  /* Let grid children shrink properly */
+  .contact-layout > * {
+    min-width: 0;
+    min-height: 0;
+  }
 
-    /* Left: photo column, bottom-aligned image */
+  /* Photo column */
+  .contact-photo {
+    display: flex;
+    align-items: flex-end;          /* keep image on the bottom */
+    justify-content: flex-start;    /* and to the left */
+  }
+
+  /* Image sizing (same visual size as before) */
+  .contact-photo img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 420px;               /* approx same width as before */
+    max-height: 60vh;               /* keep similar proportions */
+    object-fit: contain;
+    object-position: left bottom;
+  }
+
+  /* Contact text column */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;      /* bottom align text block */
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* Ensure CV link appears above the contact text */
+  .contact-info .cv-link       { order: 0; }
+  .contact-info .contact-block { order: 1; }
+
+  /* Guard against stray absolute positioning from elsewhere */
+  .contact-layout .cv-link,
+  .contact-layout .contact-block {
+    position: static !important;
+    left: auto !important;
+    bottom: auto !important;
+  }
+
+  
     .contact-photo {
-      /* ensure the cell itself is bottom-aligned */
-      align-self: end;
-
-      /* flex wrapper to push the image to the bottom neatly */
-      display: flex;
-      align-items: flex-end;
-      justify-content: stretch;
+      min-height: 20vh;            /* reasonable height when stacked */
     }
-    .contact-photo img {
-      width: 100%;
-      max-height: 100%;
-      object-fit: contain;    /* contain so it respects top/bottom inset */
-      object-position: bottom center; /* visually bottom-aligned */
-      border-radius: 0;
-      box-shadow: none;
-    }
+  }
 
-    .contact-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;   /* bottom align within the column */
-      align-items: flex-start;     /* left align content */
-      gap: 1rem;                 /* CV just above the text */
-      padding: 0;                  /* no extra bottom padding */
-      min-height: 0;
-      overflow: auto;
-    }
 
-    /* 3) Ensure the CV link is ABOVE the contact text */
-    .contact-info .cv-link       { order: 0; }
-    .contact-info .contact-block { order: 1; }
 
-    /* 4) Make sure nothing keeps the CV link “absolute” somewhere else */
-    .contact-layout .cv-link,
-    .contact-layout .contact-block {
-      position: static !important;
-      left: auto !important;
-      bottom: auto !important;
-    }
-
-    /* Responsive: stack photo above info on small screens */
-    @media (max-width: 920px) {
-      .contact-layout {
-        grid-template-columns: 1fr;
-        grid-auto-rows: auto 1fr;
-      }
-      .contact-photo {
-        /* give the photo a reasonable height when stacked */
-        min-height: 30vh;
-      }
+    @media (hover: none), (pointer: coarse) {
+      .cursor { display: none !important; }
     }
 
 
