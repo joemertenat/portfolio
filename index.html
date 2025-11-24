@@ -1,0 +1,4423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Interactive Portfolio — Single Project</title>
+
+  <!-- Roboto -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    :root{
+      --bg: #0f1012;
+      --ink: #0a0a0a;
+      --panelBorder: rgba(0,0,0,0.12);
+
+      --titleColor: #000000;
+
+      --indexOverlayBg: rgba(0,0,0,0.55);
+      --indexPanelBg: #ffffff;
+      --indexPanelText: #000000;
+      --indexPanelSub: #6b6b6b;
+
+      --indexItemBg: #ffffff;
+      --indexItemBorder: rgba(0,0,0,0.12);
+      --indexItemText: #000000;
+      --indexItemBgHover: #3a3a3a;
+      --indexItemTextHover: #ffffff;
+      --indexItemBorderHover: rgba(0,0,0,0);
+
+      --ctaBg: rgba(255,255,255,1);
+      --ctaText: #000000;
+      --ctaBorder: rgba(0,0,0,0.15);
+      --ctaBgHover: #e0e0e0;
+      --ctaTextHover: #000000;
+
+      --indexBtnBg: #ffffff;
+      --indexBtnText: #000000;
+      --indexBtnBorder: rgba(0,0,0,0.15);
+      --indexBtnBgHover: #dcdcdc;
+      --indexBtnTextHover: #000000;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      overflow: hidden; /* we scroll inside .scroller */
+      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-weight: 400;
+    }
+
+    .hud { display: none !important; }
+
+    /* SCROLLER: full-viewport pages with snap */
+    .scroller {
+      height: 100dvh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+    }
+
+    .slide {
+      position: relative;
+      height: 100dvh;          /* exact viewport height */
+      width: 100%;
+      background: #fafafa;
+      color: #000000;
+      scroll-snap-align: start;
+      isolation: isolate;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+    }
+
+    /* Default stage for full-screen image/video slides (not used on intro/textBlock) */
+    .stage {
+      position: relative;
+      width: 100vw;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .stage img,
+    .stage video {
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100dvh;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+    }
+
+    .video-wrapper {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: none;
+    }
+
+    .video-wrapper video {
+      width: 105%;
+      height: 105%;
+      padding-top: 12vh;
+      object-fit: contain;
+      object-position: center;
+      max-width: 105%;
+      max-height: 105%;
+      display: block;
+    }
+
+    /* Top-left overlay title (used only if needed on non-media-text slides) */
+    .slide-title {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      z-index: 20;
+      max-width: 120ch;
+      pointer-events: none;
+      white-space: pre-line;
+      color: var(--titleColor);
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+
+    .slide-title .title-main {
+      display: block;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 1.3;
+      color: var(--titleColor);
+    }
+
+    .slide-title .title-sub {
+      display: block;
+      margin-top: .5rem;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 1.3;
+      color: var(--titleColor);
+      white-space: pre-line;
+    }
+
+    /* --- INTRO ANIMATED SLIDE --- */
+    .slide.intro-slide {
+        background:#fcfcfc;
+        display: flex;
+        align-items: flex-start;        /* ⬅ text anchored to top, no vertical drifting */
+        justify-content: center;
+        padding: 25vh 12vw 0;            /* top offset so text sits nicely */
+      }
+
+      .intro-inner {
+        max-width: 1280px;
+        width: 100%;
+        text-align: center;
+      }
+
+      /* Intro slide: header BELOW the text, slightly smaller than contact page */
+      .intro-slide .intro-header {
+        margin-top: 2.5rem;             /* ⬅ space ABOVE header (since it’s now under text) */
+      }
+
+      .intro-slide .contact-avatar {
+        width: 72px;
+        height: 72px;
+      }
+
+      .intro-slide .contact-name {
+        font-size: 22px;
+      }
+
+      .intro-slide .contact-title {
+        font-size: 14px;
+
+      }
+
+
+
+
+
+
+
+    .intro-main {
+      margin: 0 0 1.1rem 0;
+      font-weight: 500;
+      font-size: clamp(46px, 4vw, 44px);  /* bigger */
+      line-height: 1.5;
+      white-space: pre-wrap;
+
+      /* gradient text from grey (left) to black (right) */
+      background: #000000;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .intro-sub {
+      margin: 0;
+      font-weight: 500;
+      font-size: clamp(50px, 2.6vw, 30px); /* bigger */
+      line-height: 1.5;
+      white-space: pre-wrap;
+
+      background: #000000;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    
+
+/* Center everything in the intro slide */
+.intro-slide .intro-inner {
+  max-width: 1180px;
+  width: 100%;
+  text-align: center;              /* center intro text */
+  display: flex;
+  flex-direction: column;
+  align-items: center;             /* center the contact block as a whole */
+}
+
+/* Contact block itself = centered */
+.intro-slide .contact-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  justify-content: center;         /* center avatar + text as a group */
+}
+
+/* BUT: name + title = left aligned */
+.intro-slide .contact-header-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;                /* IMPORTANT: left-align name + title */
+  align-items: flex-start;         /* prevents centering inside */
+}
+
+/* Avatar + text sizing ONLY for intro slide */
+.intro-slide .contact-avatar {
+  width: 72px;
+  height: 72px;
+}
+
+.intro-slide .contact-name {
+  font-size: 22px;
+}
+
+.intro-slide .contact-title {
+  font-size: 14px;
+}
+
+
+
+
+
+
+
+
+    /* --- SKILLS INTRO PAGE (overlapping circles) --- */
+
+
+/* --- SKILLS FORCE DIAGRAM (competences page) --- */
+.skills-force-svg {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  display: block;
+}
+
+.skills-force-link {
+  stroke: #000;
+  stroke-width: 1.5px;
+  stroke-linecap: round;
+}
+
+.skills-force-node circle {
+  stroke: #000;
+  stroke-width: 1px;
+  cursor: grab;
+}
+
+.skills-force-node text {
+  fill: #ffffff;
+  font-family: "Roboto", sans-serif;
+  pointer-events: none;
+  font-size: 11px;
+  text-anchor: middle;
+}
+
+
+
+
+
+
+
+
+/* 1) Slide: keep only the 1vw padding from viewport */
+.slide.solutions-slide {
+  background:#fcfcfc;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;   /* ok: inner will be full width */
+  padding: 0 1vw;           /* always 1vw from edges */
+}
+
+/* 2) Inner: full width, no max-width, no auto-centering */
+.solutions-inner {
+  width: 100%;
+  max-width: none;          /* ⬅ remove hard cap */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  margin: 0;                /* ⬅ no extra side margins */
+}
+
+
+/* 3) Track: no gap before first card, just scrollable row */
+.solutions-track {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  padding-top: 2vh;           /* space above rectangles */
+  padding-bottom: 1vh;        /* rectangle → scrollbar: 1vh via height/margin */
+  margin-bottom: 1vh;         /* scrollbar → viewport bottom: 1vh */
+  scroll-snap-type: x mandatory;
+}
+
+/* scrollbar styling unchanged */
+.solutions-track::-webkit-scrollbar {
+  height: 6px;
+}
+.solutions-track::-webkit-scrollbar-thumb {
+  background: #a8a8a8;
+  border-radius: 999px;
+}
+
+/* 4) Each solution item = card, no extra left margin */
+.solution-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1vh;                         /* space between title + rectangle */
+  flex: 0 0 calc(100% - 4vw);       /* card width slightly smaller than inner width */
+  max-width: 1100px;
+  height: 85vh;
+  scroll-snap-align: start;
+  margin-right: 2rem;               /* space between cards */
+}
+
+/* no extra space at the very end */
+.solution-item:last-child {
+  margin-right: 0;
+}
+
+
+.solution-title {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+}
+
+
+.solution-stage {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 0;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;      /* ⬅ center vertically */
+  justify-content: center;  /* ⬅ center horizontally */
+
+  padding: 0;               /* ⬅ remove offset */
+
+  padding-top: 0vh;
+}
+
+
+
+/* bigger media inside */
+.solution-stage img,
+.solution-stage video {
+  width: 100%;
+  height: 115%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .solution-item {
+    position: center;;
+    min-width: 95vw;
+    height: 68vh;                   /* matches larger design */
+  }
+  .solution-title {
+    font-size: 14px;
+  }
+}
+
+
+
+/* --- SKILLS RADAR SLIDE --- */
+.slide.skills-slide {
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8vw;
+}
+
+.skills-inner {
+  position: relative;
+  max-width: 100vw;
+  width: 100vw;
+  height: 130vh;
+  aspect-ratio: 1 / 1;   /* square area for the radar */
+}
+
+.skills-radar {
+  width: 100%;
+  height: 100%;
+}
+
+/* grid: empty circle + rings + axes (always visible) */
+.radar-grid-circle {
+  fill: none;
+  stroke: #e4e4e4;
+  stroke-width: 0.5;
+}
+
+.radar-axis-line {
+  stroke: #000000;
+  stroke-width: 0.5;
+}
+
+/* filled area representing competences (appears on scroll) */
+.radar-area {
+  fill: #000000;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(0.25);
+  transition:
+    opacity .6s ease-out .15s,
+    transform .6s ease-out .15s;
+}
+
+/* labels around the circle (title + short description) */
+.skills-label {
+  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+  text-anchor: middle;
+  fill: #000;
+  opacity: 0;
+  transition: opacity .5s ease-out .35s;
+}
+
+.skills-label-sub {
+  font-size: 9px;
+  fill: #555;
+}
+
+/* when slide is active: show area + labels */
+.skills-slide.is-visible .radar-area {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.skills-slide.is-visible .skills-label {
+  opacity: 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+    /* --- GENERIC TEXT BLOCK LAYOUT (problem framing, outcomes, etc.) --- */
+    .slide.text-block-slide {
+      background: #fcfcfc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 8vw;
+    }
+
+
+    .text-block-inner {
+      max-width: 900px;
+      width: 100%;
+      text-align: left;
+
+      position: relative;
+      padding-left: 0;   /* optional reset if you prefer no extra margin */
+    }
+
+
+   
+    .text-block-label {
+      font-weight: 500;
+      font-size: clamp(16px, 1.4vw, 20px);
+      line-height: 1.4;
+      color: #000000;
+      margin: 0 0 0.75rem 0;
+    }
+
+    .text-block-main {
+      font-weight: 400;
+      font-size: clamp(20px, 2vw, 26px);
+      line-height: 1.5;
+      color: #000000;
+      margin: 0;
+      white-space: normal;
+    }
+
+
+
+
+    /* --- RESULTS PAGE: multiple small paragraphs with status dots --- */
+.slide.results-slide {
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 8vw;
+}
+
+.results-slide {
+  position: relative;
+}
+
+
+.results-inner {
+  max-width: 1100px;
+  width: 100%;
+  text-align: left;
+}
+
+/* small label on top (same style logic as text-block-label) */
+.results-label {
+  font-weight: 500;
+  font-size: clamp(16px, 1.4vw, 20px);
+  line-height: 1.4;
+  color: #000000;
+  margin: 0 0 1rem 0;
+}
+
+/* paragraphs lined next to each other */
+.results-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem 2.2rem;
+}
+
+.result-item {
+  flex: 1 1 260px;
+  max-width: 320px;
+
+  position: relative;
+  padding-left: 1.5rem;   /* room for the vertical line */
+}
+
+.result-text {
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #000000;
+  margin: 0;
+}
+
+.result-text-inner {
+  display: inline-block;  /* we no longer need inline-flex for a dot */
+}
+
+/* vertical status line per paragraph */
+.result-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 999px;
+}
+
+/* green = successful */
+.result-line-success {
+  background: #20d450;
+}
+
+/* red = can be improved */
+.result-line-improve {
+  background: #d42020;
+}
+
+
+
+
+/* --- PROJECT INTRO PAGE --- */
+.slide.project-intro {
+  background:#fcfcfc;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 35vh 12vw 0;
+}
+
+/* remove internal spacing */
+.project-intro-inner * {
+  margin: 0;
+  padding: 0;
+}
+
+/* CENTER EVERYTHING */
+.project-intro-inner {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+
+  text-align: center;         /* ⬅ CENTER ALL TEXT */
+  display: flex;
+  flex-direction: column;
+  align-items: center;        /* ⬅ CENTER CHILD BLOCKS */
+}
+
+/* --- TITLE --- */
+.project-intro-title {
+  font-weight: 500;
+  font-size: clamp(42px, 3.6vw, 56px);
+  line-height: 1.15;
+  white-space: pre-wrap;
+
+  background:#000000;
+  -webkit-background-clip: text;
+  color: transparent;
+
+  margin-bottom: 3vh;
+  text-align: center;         /* ⬅ ensure centered */
+}
+
+/* --- INLINE METADATA ROW --- */
+.project-meta {
+  margin-bottom: 3vh;  
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.project-meta-inline {
+  display: flex;
+  gap: 1.2rem;                 /* space between items */
+  align-items: center;
+  justify-content: center;
+}
+
+.project-meta-item,
+.project-meta-sep {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.05;
+
+  background: #000000;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.project-meta-sep {
+  opacity: 0.6;                /* slightly lighter | */
+}
+
+
+/* --- COMPETENCE TAG LIST --- */
+.project-intro-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;    /* ⬅ CENTER TAGS */
+  gap: 1rem;
+  padding: 1;
+}
+
+.project-intro-list li {
+  font-size: clamp(14px, 1.2vw, 20px);
+  font-weight: 500;
+  line-height: 1.2;
+
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  color: #2f4638;
+  text-align: center;
+}
+
+
+
+
+/*n<sjdjadhfbvhf*/
+
+
+
+/* PAGE BACKGROUND */
+.slide.projects-overview {
+  background: #fcfcfc;              /* light grey page */
+}
+
+/* MAIN CONTAINER */
+.projects-overview-inner {
+  max-width: 94vw;
+  max-height: 88vh;
+  margin: 0 auto;
+  padding: 6vh 3vw;
+}
+
+/* FOUR CARDS IN ONE ROW */
+.projects-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 2vw;
+}
+
+.project-card {
+  flex: 0 0 calc(25% - 2vw);
+  min-width: 0;
+  min-height: 65vh;
+  position: relative;     /* needed for total control if you later go absolute */
+  padding: 3vh 2vw;  
+  overflow: hidden;  
+
+  border-radius: 1.4vh;
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 0.6vh 1.2vh rgba(0,0,0,0.08);
+
+  display: flex;
+  flex-direction: column;
+
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+/* HOVER EFFECT */
+.project-card:hover {
+  transform: translateY(-0.8vh);
+  box-shadow: 0 1.2vh 2.2vh rgba(0,0,0,0.14);
+  background: #ECECEC;                       /* slightly darker on hover */
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* TITLE */
+.project-card-title {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  font-weight: 500;
+  color: #1a1a1a;
+  margin: 0 0 1vh;
+}
+
+/* META STACK */
+.project-card-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8vh;
+  margin-bottom: 1.2vh;
+}
+
+.project-card-meta {
+  font-size: 0.9rem;
+  color: #333;
+  opacity: 0.75;
+}
+
+/* IMAGE CONTAINER TOUCHES LEFT, RIGHT, AND BOTTOM */
+.project-card-thumb {
+  position: absolute; 
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  margin: 0;                 /* NO margins */
+  padding: 0;                /* NO padding */
+
+
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* IMAGE */
+.project-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+
+
+/* --- RESULTS NAVIGATION BUTTONS --- */
+.results-nav {
+  position: absolute;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.results-nav-btn {
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  border-radius: 4px;
+}
+
+.results-nav-btn.secondary {
+  opacity: 0.7;
+}
+
+/* Ensure Back-to-selection is never white */
+.results-nav-btn.back-btn {
+  background: #f0f0f0;       /* light gray background */
+  color: #222;               /* dark readable text */
+  border: 1px solid #ccc;
+}
+
+
+.results-nav-btn {
+  appearance:none;
+  -webkit-appearance:none;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,0.16);
+  font-size:13px;
+  font-weight:500;
+  padding:.55rem 1.15rem;
+  box-shadow:0 10px 28px rgba(0,0,0,0.16);
+  background:#111111;
+  color:#ffffff;
+  cursor:none;
+  transition:
+    background-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease,
+    transform .12s ease;
+}
+
+.results-nav-btn:hover,
+.results-nav-btn:focus-visible {
+  background:#222222;
+  color:#ffffff;
+  box-shadow:0 14px 38px rgba(0,0,0,0.22);
+  transform: translateY(-1px);
+  outline:none;
+}
+
+.results-nav-btn.secondary {
+  background:#ffffff;
+  color:#111111;
+}
+
+.results-nav-btn.secondary:hover,
+.results-nav-btn.secondary:focus-visible {
+  background:#f4f4f4;
+  color:#000000;
+}
+
+
+
+
+.scroll-hint {
+  position: absolute;
+  bottom: 6vh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.95rem;
+  color: #999;
+  opacity: 0.9;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* optional soft breathing animation */
+@keyframes hintFade {
+  0%   { opacity: 0.4; }
+  50%  { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.scroll-hint {
+  animation: hintFade 4s ease-in-out infinite;
+}
+
+
+
+
+
+
+
+   /* --- PROJECT LAYOUT: centered media + small title --- */
+    .slide.media-text {
+      background:#fafafa; /* same tone as other slides */
+      /* no display override: we keep .slide flex centering */
+    }
+
+    /* Small overlay title for project pages (media-text) */
+    .slide.media-text .slide-title {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      max-width: 80ch;
+      pointer-events: none;
+    }
+
+    .slide.media-text .slide-title .title-main {
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .slide.media-text .slide-title .title-sub {
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+
+    /* CTA / HUD BUTTONS BASE STYLE */
+    .cta-btn,
+    .index-btn,
+    .contact-btn {
+      appearance: none;
+      -webkit-appearance: none;
+
+      border-radius: 999px;
+      cursor: none;
+      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      padding: .5rem 0.9rem;
+      text-align: center;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15);
+
+      border: 1px solid var(--ctaBorder);
+      background: var(--ctaBg);
+      color: var(--ctaText);
+
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, background-color .15s ease, box-shadow .15s ease;
+      z-index: 40;
+    }
+
+    /* bottom CTA variation */
+    .cta-btn {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 140px;
+      padding: .6rem 1rem;
+    }
+
+    /* Base index/contact button look (position handled by top bar) */
+    .index-btn,
+    .contact-btn {
+      min-width: auto;
+      padding: .5rem .8rem;
+      font-size: 13px;
+      border: 1px solid var(--indexBtnBorder);
+      background: var(--indexBtnBg);
+      color: var(--indexBtnText);
+      box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    }
+
+    /* --- TOP BAR WRAPPER FOR INDEX / CONTACT / LANG --- */
+    .slide-topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3.5rem;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      background: none;
+      z-index: 40;
+    }
+
+    .slide-topbar .index-btn,
+    .slide-topbar .contact-btn {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+    }
+
+    .slide-topbar .lang-switch {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    }
+
+    /* Language segmented control */
+    .lang-switch {
+      display: inline-flex;
+      gap: 2px;
+      background: #fff;
+      border: 1px solid var(--indexBtnBorder);
+      border-radius: 999px;
+      padding: 2px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.15);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 40;
+      transition: opacity .25s ease, box-shadow .15s ease;
+    }
+
+    .lang-option {
+      appearance: none;
+      -webkit-appearance: none;
+      border: 0;
+      background: transparent;
+      font: 500 12px/1 "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: .45rem .8rem;
+      border-radius: 999px;
+      cursor: none;
+      color: #333;
+    }
+
+    .lang-option.is-active {
+      background: #1f1f1f;
+      color: #fff;
+    }
+
+    .lang-switch:hover { box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+    /* hover states */
+    .cta-btn:hover,
+    .cta-btn:focus-visible {
+      outline: none;
+      background: var(--ctaBgHover);
+      color: var(--ctaTextHover);
+      box-shadow: 0 10px 36px rgba(0,0,0,.22);
+    }
+
+    .index-btn:hover,
+    .index-btn:focus-visible,
+    .contact-btn:hover,
+    .contact-btn:focus-visible {
+      outline: none;
+      background: var(--indexBtnBgHover);
+      color: var(--indexBtnTextHover);
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    /* CUSTOM CURSOR */
+    .scroller, .scroller * { cursor: none !important; }
+    html, body, #scroller, #scroller *, .slide, .slide *, .stage, .stage *, .hud, .hud * {
+      cursor: none !important;
+    }
+
+    .cursor {
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 40px;
+      height: 40px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+
+    .cursor .dot{
+      display:block;
+      width:100%;
+      height:100%;
+      border-radius: 999px;
+      background: rgba(200,200,200,.38);
+      transition: background .12s ease, transform .14s ease;
+    }
+
+    .cursor.visible { opacity: 0.9; }
+    .cursor.solid .dot { background: #000000; }
+
+    /* SCROLLBAR aesthetic */
+    .scroller::-webkit-scrollbar{ width: 10px; }
+    .scroller::-webkit-scrollbar-thumb{
+      background: #2a2c31;
+      border-radius: 999px;
+    }
+
+    /* INDEX OVERLAY */
+    .index-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1500;
+      background: var(--indexOverlayBg);
+      backdrop-filter: blur(50px);
+      -webkit-backdrop-filter: blur(50px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 4vh 4vw;
+    }
+
+    .index-panel {
+      background: var(--indexPanelBg);
+      color: var(--indexPanelText);
+      border: 1px solid var(--panelBorder);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      min-width: min(320px, 90vw);
+      max-width: min(420px, 90vw);
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 20px 24px;
+      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .index-header {
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--indexPanelText);
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .index-close-hint {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--indexPanelSub);
+    }
+
+    .index-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .index-section-title {
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: #000000;
+      margin: 16px 0 8px 0;
+    }
+
+    .index-list-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .index-item-btn {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 500;
+      font-family: inherit;
+      background: var(--indexItemBg);
+      color: #333333;
+      border: 1px solid var(--indexItemBorder);
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor: none;
+      transition:
+        background-color .15s ease,
+        box-shadow .15s ease,
+        color .15s ease,
+        border-color .15s ease;
+      display: block;
+    }
+
+    .index-item-btn .index-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #787878;
+      line-height: 1.3;
+    }
+
+    .index-item-btn:hover,
+    .index-item-btn:focus-visible {
+      outline: none;
+      background: var(--indexItemBgHover);
+      color: #ffffff;
+      border-color: var(--indexItemBorderHover);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .index-item-btn.is-active {
+      background: var(--indexItemBgHover);
+      color: #ffffff;
+      border-color: var(--indexItemBorderHover);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .index-item-btn.is-active .index-title {
+      color: #ffffff;
+    }
+
+    
+
+  /* --- CONTACT PAGE (new design, bigger) --- */
+.slide.contact-slide {
+  background: #fcfcfc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6vw;             /* slightly less side padding so card feels bigger */
+}
+
+.contact-card {
+  max-width: 1180px;          /* was 960px */
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;        /* slightly larger radius */
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.08);
+  padding: 3rem 3.4rem;       /* was 2.4 / 2.8 */
+  display: flex;
+  flex-direction: column;
+  gap: 2.1rem;                /* slightly larger vertical rhythm */
+}
+
+/* top row: avatar + name/title */
+.contact-header {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;                /* was 1.4rem */
+}
+
+.contact-avatar {
+  width: 96px;                /* was 80px */
+  height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #f3f3f3;
+}
+
+.contact-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.contact-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.contact-name {
+  font-size: 24px;            /* was 20px */
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #111111;
+}
+
+.contact-title {
+  font-size: 15px;            /* was 14px */
+  font-weight: 400;
+  color: #6a6a6a;
+}
+
+/* details + CV */
+.contact-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1.8rem;                /* a bit larger */
+  justify-content: space-between;
+}
+
+.contact-block {
+  font-size: 15px;            /* was 14px */
+  font-weight: 400;
+  line-height: 1.7;           /* slightly more breathing */
+  color: #222222;
+  white-space: pre-line;
+}
+
+
+/* Intro page: show the same header AFTER the typing finishes */
+.intro-header {
+  margin-top: 2.5rem;                 /* space under the text */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.intro-header.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+
+
+
+.intro-inner {
+  max-width: 60vw;
+  margin: 0 auto;
+}
+
+/* main + sub: hidden at first */
+.intro-main,
+.intro-sub {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.6s ease-out, transform 0.9s ease-out;
+}
+
+/* header block under the text */
+.intro-header {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease-out, transform 0.9s ease-out;
+}
+
+/* when the intro slide becomes active (.is-visible is already used in JS) */
+.slide.intro-slide.is-visible .intro-main {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.0s;
+}
+
+.slide.intro-slide.is-visible .intro-sub {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.2s;
+}
+
+.slide.intro-slide.is-visible .intro-header {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.4s;
+}
+
+
+
+
+
+
+
+/* CV button */
+.cv-link {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #111111;
+  color: #ffffff;
+  font-size: 15px;            /* was 14px */
+  font-weight: 500;
+  padding: 0.8rem 1.7rem;     /* a bit more padding */
+  cursor: none;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 12px 34px rgba(0,0,0,0.2);
+  transition:
+    background-color .15s ease,
+    color .15s ease,
+    box-shadow .15s ease,
+    transform .12s ease;
+}
+
+.cv-link:hover,
+.cv-link:focus-visible {
+  background: #222222;
+  color: #ffffff;
+  box-shadow: 0 16px 44px rgba(0,0,0,0.26);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+@media (max-width: 700px) {
+  .contact-card {
+    padding: 2.2rem 1.8rem 2.4rem;
+  }
+
+  .contact-details {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .contact-avatar {
+    width: 72px;             /* scaled up from previous mobile size */
+    height: 72px;
+  }
+}
+
+
+    @media (hover: none), (pointer: coarse) {
+      .cursor { display: none !important; }
+    }
+
+
+  </style>
+</head>
+
+
+
+
+
+<body>
+  <div class="hud">Scroll / PgUp / PgDn — snap between sections</div>
+
+  <!-- custom cursor -->
+  <div id="cursor" class="cursor" aria-hidden="true"><span class="dot"></span></div>
+
+  <!-- Main scroller -->
+  <main id="scroller" class="scroller" aria-label="Portfolio slides"></main>
+
+  <!-- INDEX OVERLAY -->
+  <div id="indexOverlay" class="index-overlay" aria-hidden="true">
+    <div class="index-panel" role="dialog" aria-modal="true" aria-label="Index">
+      <div class="index-header">
+        <div id="indexTitleLabel">Index</div>
+        <div id="indexCloseHint" class="index-close-hint">click outside or Esc to close</div>
+      </div>
+      <div id="indexList" class="index-list"></div>
+    </div>
+  </div>
+
+  <script>
+
+
+    /* ===========================
+       I18N STRINGS + STATE
+    =========================== */
+    const supportedLangs = ['en','de','fr'];
+    let currentLang = 'en';
+
+    const uiStrings = {
+      indexTitle: { en:'Index', de:'Index', fr:'Index' },
+      indexCloseHint: {
+        en:'click outside to close',
+        de:'Klicken Sie außerhalb, um zu schließen',
+        fr:'cliquez à l’extérieur pour fermer'
+      },
+
+      resultsNextProject: {
+        en: 'Next project',
+        de: 'Nächstes Projekt',
+        fr: 'Projet suivant'
+      },
+      resultsBackToSelection: {
+        en: 'Back to selection',
+        de: 'Zurück zur Auswahl',
+        fr: 'Retour à la sélection'
+      },
+
+      scrollHint: {
+        en: 'Scroll to discover',
+        de: 'Scrollen, um mehr zu entdecken',
+        fr: 'Scrollez pour découvrir'
+      },
+
+
+      discover:   { en:'Discover', de:'Entdecken', fr:'Découvrir' },
+      seeProject: { en:'See the project', de:'Projekt ansehen', fr:'Voir le projet' },
+      discover2:  { en:'Discover the case study', de:'Case Study entdecken', fr:'Découvrir le cas d’étude' },
+      indexBtn:   { en:'Index', de:'Index', fr:'Index' },
+      contactBtn: { en:'Contact', de:'Kontakt', fr:'Contact' },
+      backBtn:    { en:'Back', de:'Zurück', fr:'Retour' },
+      cvDownload: { en:'Download CV', de:'CV herunterladen', fr:'Télécharger le CV' },
+      contactBlock: {
+        en: "Name: Joé Mertenat\nTitle: Information & Interaction Designer\nEmail: joe.mertenat@bluewin.ch\nPhone: +41 79 237 07 77\nLocation: Rue des Voignous 12, 2800 Delémont, Switzerland",
+        de: "Name: Joé Mertenat\nTitel: Information & Interaction Designer\nE-Mail: joe.mertenat@bluewin.ch\nTelefon: +41 79 237 07 77\nAdresse: Rue des Voignous 12, 2800 Delémont, Schweiz",
+        fr: "Nom: Joé Mertenat\nTitre: Information & Interaction Designer\nE-mail: joe.mertenat@bluewin.ch\nTéléphone: +41 79 237 07 77\nAdresse: Rue des Voignous 12, 2800 Delémont, Suisse"
+      }
+    };
+
+    const cvPaths = {
+      en: 'assets/cv/CV_Joe-Mertenat_2025(EN).pdf',
+      de: 'assets/cv/CV_Joe-Mertenat_2025(DE).pdf',
+      fr: 'assets/cv/CV_Joe-Mertenat_2025(FR).pdf'
+    };
+
+    const contactImageSrc = 'assets/img/contact.JPG';
+
+
+
+        const projectsMeta = [
+      {
+        id: 'p1',
+        i18n: {
+          en: {
+            title: "Interactive Chronological Archive System for an Architecture Studio",
+            domain: "Information Design, UX/UI",
+            type: "Client Project",
+            year: "2025",
+            skills: [
+              "UX/UI Design",
+              "Information Design", 
+              "Front-end Development",
+              "Motion & interaction",
+            ]
+          },
+          de: {
+            title: "Interaktives chronologisches Archivsystem für ein Architekturbüro",
+            domain: "Informationsdesign, UX/UI",
+            type: "Kundenprojekt",
+            year: "2025",
+            skills: [
+              "UX/UI Design",
+              "Informationsdesign",
+              "Frontend-Entwicklung",
+              "Motion & Interaktion",
+            ]
+          },
+          fr: {
+            title: "Système d’archive chronologique interactif pour un studio d’architecture",
+            domain: "Information Design, UX/UI",
+            type: "Projet client",
+            year: "2025",
+            skills: [
+              "UX/UI Design",
+              "Information Design",
+              "Développement front-end",
+              "Motion & interaction",
+            ]
+          }
+        }
+      },
+      {
+        id: 'p2',
+        i18n: {
+          en: {
+            title: "Business Management App for Restaurant Operations",
+            domain: "Information Architecture, UX/UI",
+            type: "Client Project",
+            year: "2024",
+            skills: [
+              "Information architecture",
+              "UX research & prototyping",
+              "Interface design",
+              "Data structuring"
+            ]
+          },
+          de: {
+            title: "Business-Management-App für den Restaurantbetrieb",
+            domain: "Informationsarchitektur, UX/UI",
+            type: "Kundenprojekt",
+            year: "2024",
+            skills: [
+              "Informationsarchitektur",
+              "UX-Recherche & Prototyping",
+              "Interface-Design",
+              "Datenstrukturierung"
+            ]
+          },
+          fr: {
+            title: "Application de gestion opérationnelle pour un restaurant",
+            domain: "Architecture de l’information, UX/UI",
+            type: "Projet client",
+            year: "2024",
+            skills: [
+              "Architecture de l’information",
+              "Recherche UX & prototypage",
+              "Design d’interface",
+              "Structuration des données"
+            ]
+          }
+        }
+      },
+      {
+        id: 'p3',
+        i18n: {
+          en: {
+            title: "Interactive Dashboard for Visualizing Online Conversation Structure and Sentiment Analysis",
+            domain: "Information Design, Interaction",
+            type: "Applied Research",
+            year: "2024",
+            skills: [
+              "Interface Design",
+              "Data Visualization",
+              "Prototyping",
+              "Front-end Development"
+            ]
+          },
+          de: {
+          title: "Interaktives Dashboard zur Visualisierung von Online-Gesprächsstrukturen und Sentiment-Analyse",
+          domain: "Informationsdesign, Interaktion",
+          type: "Angewandte Forschung",
+          year: "2024",
+          skills: [
+            "Interface-Design",
+            "Datenvisualisierung",
+            "Prototyping",
+            "Frontend-Entwicklung"
+          ]
+        },
+
+          fr: {
+          title: "Tableau de bord interactif pour visualiser la structure des conversations en ligne et l’analyse de sentiment",
+          domain: "Information Design, Interaction",
+          type: "Recherche appliquée",
+          year: "2024",
+          skills: [
+            "Design d’interface",
+            "Visualisation de données",
+            "Prototypage",
+            "Développement front-end"
+          ]
+        }
+
+        }
+      },
+      {
+        id: 'p4',
+        i18n: {
+          en: {
+            title: "Interactive Infographic of a Housing Module Composition",
+            domain: "Information Design",
+            type: "Applied Research",
+            year: "2024",
+            skills: [
+              "Information design",
+              "Prototyping",
+              "Interaction Design"
+            ]
+          },
+          de: {
+          title: "Interaktive Infografik zur Zusammensetzung eines Wohnmoduls",
+          domain: "Informationsdesign",
+          type: "Angewandte Forschung",
+          year: "2024",
+          skills: [
+            "Informationsdesign",
+            "Prototyping",
+            "Interaktionsdesign"
+          ]
+        },
+
+          fr: {
+          title: "Infographie interactive de la composition d’un module d’habitation",
+          domain: "Information Design",
+          type: "Recherche appliquée",
+          year: "2024",
+          skills: [
+            "Information design",
+            "Prototypage",
+            "Design d’interaction"
+          ]
+        }
+
+        }
+      }
+    ];
+
+
+    /* ===========================
+       INDEX GROUPS (A, B, C)
+    =========================== */
+   const indexGroups = [
+        {
+          headingI18n: {
+            en: "Intro",
+            de: "Intro",
+            fr: "Intro"
+          },
+          indices: [0, 1]                 // introAnimated + skillsIntro
+        },
+        {
+          headingI18n: {
+            en: "Project 1",
+            de: "Projekt 1",
+            fr: "Projet 1"
+          },
+          indices: [3, 4, 5]           // P1 intro + problem + solutionsRow + results
+        },
+          {
+          headingI18n: {
+            en: "Project 2",
+            de: "Projekt 2",
+            fr: "Projet 2"
+          },
+          indices: [6, 7, 8]           // P1 intro + problem + solutionsRow + results
+        },
+        {
+          headingI18n: {
+            en: "Project 3",
+            de: "Projekt 3",
+            fr: "Projet 3"
+          },
+          indices: [9, 10, 11]           // P1 intro + problem + solutionsRow + results
+        },
+        {
+          headingI18n: {
+            en: "Project 4",
+            de: "Projekt 4",
+            fr: "Projet 4"
+          },
+          indices: [12, 13, 14]           // P1 intro + problem + solutionsRow + results
+        },
+        {
+          headingI18n: {
+            en: "Contact",
+            de: "Kontakt",
+            fr: "Contact"
+          },
+          indices: [15]                    // contact slide
+        }
+      ];
+
+
+    /* ===========================
+       SLIDE CONFIG (A, B, C)
+    =========================== */
+
+    const slides = [
+      /* A) INTRO-ABOUT (ANIMATED TEXT) */
+      {
+        type: 'text',
+        layout: 'introAnimated',
+        i18n: {
+          en: {
+            main: "Welcome, I am Joé. My work relies on strategic thinking and a solution-driven design process that turns complex questions into clear visual and interactive systems.",
+            indexTitle: "About"
+          },
+          de: {
+            main: "Willkommen, ich bin Joé. Meine Arbeit basiert auf strategischem Denken und einem lösungsorientierten Designprozess, der komplexe Fragestellungen in klare visuelle und interaktive Systeme übersetzt.",
+            indexTitle: "Über"
+          },
+          fr: {
+            main: "Bienvenue, je suis Joé. Mon travail s’appuie sur une réflexion stratégique et un processus de design orienté vers la solution, qui transforme des questions complexes en systèmes visuels et interactifs clairs.",
+            indexTitle: "À propos"
+          }
+        },
+        showTitle: false,
+        
+      },
+
+
+      /* A2) INTRO — SKILLS MAP */
+      /* A2) INTRO — SKILLS & COMPETENCES MAP */
+      {
+        type: 'text',
+        layout: 'skillsMap',
+        i18n: {
+          en: { indexTitle: "Skills & competences" },
+          de: { indexTitle: "Skills & Kompetenzen" },
+          fr: { indexTitle: "Compétences & skills" }
+        },
+        showTitle: false
+      },
+
+
+          /* A3) PROJECTS OVERVIEW (cards hub) */
+    {
+      type: 'group',
+      layout: 'projectsOverview',
+      i18n: {
+        en: { indexTitle: 'Projects — Overview' },
+        de: { indexTitle: 'Projekte — Übersicht' },
+        fr: { indexTitle: 'Projets — Vue d’ensemble' }
+      },
+      showTitle: false
+    },
+
+
+
+
+
+
+      /* PROJECT 1 – PROBLEM FRAMING (TEXT BLOCK) */
+      {
+        type: 'text',
+        layout: 'textBlock',
+        i18n: {
+          en: {
+            label: "Problem framing",
+            body:  "The studio needed an archive that reflected the evolution of its work over time rather than a static project list. The challenge was to translate chronology into an intuitive, playful navigation system that supported both exploration and precise search. The goal was to design a digital archive that could serve internal needs while also presenting projects clearly to clients.",
+            indexTitle: "Problem framing"
+          },
+          de: {
+            label: "Problem framing",
+            body:  "Das Studio benötigte ein Archiv, das die zeitliche Entwicklung seiner Arbeiten sichtbar macht – nicht nur eine statische Projektliste. Die Herausforderung bestand darin, Chronologie in ein intuitives und spielerisches Navigationserlebnis zu übersetzen, das sowohl Entdeckung als auch gezielte Suche ermöglicht. Ziel war ein digitales Archiv, das intern funktioniert und gleichzeitig Projekte verständlich für Kunden präsentiert.",
+            indexTitle: "Problem framing"
+          },
+          fr: {
+            label: "Problem framing",
+            body:  "Le studio avait besoin d’un archivage capable de représenter l’évolution de ses projets dans le temps, plutôt qu’une simple liste statique. Le défi consistait à transformer la chronologie en une navigation intuitive et ludique permettant à la fois l’exploration et la recherche précise. L’objectif était de créer un système numérique utile en interne et clair pour les clients.",
+            indexTitle: "Problématisation"
+          }
+        },
+        showTitle: false
+      },
+
+      
+
+      /* B3) PROJECT 1 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      {
+        type: 'group',
+        layout: 'solutionsRow',
+        solutions: [
+          
+          {
+            type: 'video',
+            src: 'assets/video/project1_video1.mp4',
+            i18n: {
+              en: {
+                title: "Making time navigable through an interactive chronological structure."
+              },
+              de: {
+                title: "Zeit durch eine interaktive chronologische Struktur navigierbar machen."
+              },
+              fr: {
+                title: "Rendre le temps navigable grâce à une structure chronologique interactive."
+              }
+            }
+          },
+          {
+            type: 'video',
+            src: 'assets/video/project1_video2.mp4',
+            i18n: {
+              en: {
+                title: "Providing multiple entry points while maintaining a coherent system."
+              },
+              de: {
+                title: "Mehrere Einstiegspunkte anbieten und gleichzeitig ein kohärentes System bewahren."
+              },
+              fr: {
+                title: "Proposer plusieurs points d’entrée tout en conservant un système cohérent."
+              }
+            }
+          }
+        ],
+        i18n: {
+          en: { indexTitle: "Solutions" },
+          de: { indexTitle: "Lösungen" },
+          fr: { indexTitle: "Solutions" }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+      /* B4) PROJECT 1 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      {
+        type: 'text',
+        layout: 'resultsBlock',
+        i18n: {
+          en: {
+            label: "Key outcomes & results",
+            items: [
+              {
+                status: 'success',  // green dot
+                text: "The interactive timeline increased engagement and encouraged users and studio members to explore projects intuitively."
+              },
+              {
+                status: 'success',  // green dot
+                text: "Multiple entry points made it easier to access specific projects using structured criteria, improving both discovery and usability."
+              },
+              {
+                status: 'improve',  // red dot
+                text: "Some users needed initial guidance to fully understand the timeline-based navigation. Very large or irregular project data required additional formatting work to ensure consistency."
+              }
+            ],
+            indexTitle: "Outcomes"
+          },
+          de: {
+            label: "Ergebnisse & Wirkung",
+            items: [
+              {
+                status: 'success',
+                text: "Die interaktive Zeitleiste steigerte die Nutzerbindung und ermöglichte eine intuitive Erkundung der Projekte durch das Team und externe Besucher."
+              },
+              {
+                status: 'success',
+                text: "Mehrere Zugangspunkte erleichterten den gezielten Zugriff auf Projekte anhand klarer Kriterien und verbesserten sowohl Auffindbarkeit als auch Nutzbarkeit."
+              },
+              {
+                status: 'improve',
+                text: "Einige Nutzer benötigten zuerst eine kurze Anleitung, um die zeitbasierte Navigation vollständig zu verstehen. Sehr umfangreiche oder unregelmäßig strukturierte Projektdaten erforderten zusätzlichen Aufwand, um sie einheitlich darzustellen."
+              }
+            ],
+            indexTitle: "Ergebnisse"
+          },
+          fr: {
+            label: "Résultats & effets",
+            items: [
+              {
+                status: 'success',
+                text: "La frise interactive a renforcé l’engagement et permis une exploration intuitive des projets par les utilisateurs et les architectes du studio."
+              },
+              {
+                status: 'success',
+                text: "Plusieurs points d’accès ont facilité la recherche de projets via des critères structurés, améliorant la découverte et l’usage."
+              },
+              {
+                status: 'improve',
+                text: "Certains utilisateurs ont eu besoin d’un bref accompagnement pour comprendre pleinement la navigation temporelle. Les projets volumineux ou mal structurés ont demandé un travail supplémentaire de mise en cohérence."
+              }
+            ],
+            indexTitle: "Résultats"
+          }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+
+
+///////////////////////////////////////2////////////////
+    
+
+
+      /* B2) PROJECT 2 – PROBLEM FRAMING (TEXT BLOCK) */
+      {
+        type: 'text',
+        layout: 'textBlock',
+        i18n: {
+          en: {
+            label: "Project 2 — Problem framing",
+            body:  "The goal was to design an app that simplified organizational tasks within a restaurant and helped different roles coordinate their work. The main challenge was creating an interface that was intuitive for users with low digital literacy while still supporting complex processes such as inventory, task management, and financial overview. The objective was to streamline operations without introducing new friction or cognitive load.",
+            indexTitle: "Problem framing"
+          },
+          de: {
+            label: "Projekt 2 — Problem framing",
+            body:  "Das Ziel war die Gestaltung einer App, die organisatorische Aufgaben im Restaurant vereinfacht und die Zusammenarbeit verschiedener Rollen erleichtert. Die zentrale Herausforderung bestand darin, eine intuitive Oberfläche für Nutzer mit geringer digitaler Kompetenz zu entwickeln und gleichzeitig komplexe Prozesse wie Inventar, Aufgabenverwaltung und Finanzübersichten abzubilden. Die App sollte Abläufe vereinfachen, ohne neue Hürden zu schaffen.",
+            indexTitle: "Problem framing"
+          },
+          fr: {
+            label: "Projet 2 — Problem framing",
+            body:  "L’objectif était de concevoir une application capable de simplifier les tâches organisationnelles d’un restaurant et de coordonner différents rôles. Le défi principal consistait à créer une interface intuitive pour des utilisateurs ayant une faible maîtrise du numérique, tout en intégrant des processus complexes comme l’inventaire, la gestion des tâches et la visualisation financière. L’application devait structurer le travail sans ajouter de nouvelles contraintes.",
+            indexTitle: "Problématisation"
+          }
+        },
+        showTitle: false
+      },
+
+      
+
+      
+
+ /* B3) PROJECT 2 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      {
+        type: 'group',
+        layout: 'solutionsRow',
+        solutions: [
+           {
+            type: 'img',
+            src: 'assets/img/project2_solution1.png',
+            i18n: {
+              en: {
+                title: "Designing a flow accessible to users with low digital literacy."
+              },
+              de: {
+                title: "Gestaltung eines Ablaufs, der auch für Nutzer mit geringer digitaler Kompetenz zugänglich ist."
+              },
+              fr: {
+                title: "Concevoir un parcours accessible aux utilisateurs ayant une faible maîtrise du numérique."
+              }
+            }
+          },
+          {
+            type: 'video',
+            src: 'assets/video/project2_video1.mp4',
+            i18n: {
+              en: {
+                title: "Structuring task management to feel intuitive, clear, and manageable."
+              },
+              de: {
+                title: "Aufgabenverwaltung so strukturieren, dass sie intuitiv, klar und gut handhabbar ist."
+              },
+              fr: {
+                title: "Structurer la gestion des tâches pour qu’elle soit intuitive, claire et facile à gérer."
+              }
+            }
+          },
+          {
+            type: 'img',
+            src: 'assets/img/project2_solution3.png',
+            i18n: {
+              en: {
+                title: "Integrating and visualizing data smoothly without adding cognitive load."
+              },
+              de: {
+                title: "Daten nahtlos integrieren und visualisieren, ohne die kognitive Belastung zu erhöhen."
+              },
+              fr: {
+                title: "Intégrer et visualiser les données sans friction et sans augmenter la charge cognitive."
+              }
+            }
+          }
+        ],
+        i18n: {
+          en: { indexTitle: "Solutions" },
+          de: { indexTitle: "Lösungen" },
+          fr: { indexTitle: "Solutions" }
+        },
+        showTitle: false
+      },
+
+       
+
+
+      /* B4) PROJECT 2 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      {
+        type: 'text',
+        layout: 'resultsBlock',
+        i18n: {
+          en: {
+            label: "Project 2 — Key outcomes & results",
+            items: [
+              {
+                status: 'success',  // green dot
+                text: "The prototype showed that the app could create a central coordination point, helping different team members align their tasks more efficiently."
+              },
+              {
+                status: 'success',  // green dot
+                text: "The prototype showed that the app could improve task clarity and make operational and financial information easier to visualize and access."
+              },
+              {
+                status: 'improve',  // red dot
+                text: "Some users still required guidance to adopt the new workflow, especially those unfamiliar with digital tools. A few advanced features needed further simplification to avoid overwhelming first-time users."
+              }
+            ],
+            indexTitle: "Outcomes"
+          },
+          de: {
+            label: "Projekt 2 — Ergebnisse & Wirkung",
+            items: [
+              {
+                status: 'success',
+                text: "Der Prototyp zeigte, dass die App einen zentralen Koordinationspunkt schaffen kann, der die Abstimmung zwischen den Mitarbeitenden deutlich erleichtert."
+              },
+              {
+                status: 'success',
+                text: "Der Prototyp zeigte, dass die App die Aufgabenübersicht verbessern und operative sowie finanzielle Informationen leichter zugänglich und verständlich machen kann."
+              },
+              {
+                status: 'improve',
+                text: "Einige Nutzer benötigten weiterhin Unterstützung, um den neuen Arbeitsablauf zu übernehmen – insbesondere Personen mit geringer digitaler Erfahrung. Zudem mussten bestimmte erweiterte Funktionen weiter vereinfacht werden, um neue Nutzer nicht zu überfordern."
+              }
+            ],
+            indexTitle: "Ergebnisse"
+          },
+          fr: {
+            label: "Projet 2 — Résultats & effets",
+            items: [
+              {
+                status: 'success',
+                text: "Le prototype a montré que l’application pouvait créer un point central de coordination, facilitant l’alignement des tâches entre les membres de l’équipe."
+              },
+              {
+                status: 'success',
+                text: "Le prototype a montré que l’application pouvait améliorer la clarté des tâches et rendre les informations opérationnelles et financières plus faciles à visualiser et à consulter."
+              },
+              {
+                status: 'improve',
+                text: "Certaines personnes ont eu besoin d’un accompagnement pour adopter le nouveau flux de travail, surtout celles peu familières avec les outils numériques. Quelques fonctionnalités avancées nécessitaient encore des simplifications pour ne pas surcharger les nouveaux utilisateurs."
+              }
+            ],
+            indexTitle: "Résultats"
+          }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+/////////////////////3///////////////////////
+
+
+
+
+      /* B2) PROJECT 3 – PROBLEM FRAMING (TEXT BLOCK) */
+      {
+        type: 'text',
+        layout: 'textBlock',
+        i18n: {
+          en: {
+            label: "Project 3 — Problem framing",
+            body:  "The project aimed to design a visualization and dashboard that allow users to explore the structure of online conversations and sentiment analysis results. The main challenge was to provide a tool that enables multiple perspectives instead of a fixed, authoritative presentation of the data. The objective was to design interactions that question how sentiment is constructed and encourage critical insight into algorithmic interpretations.",
+            indexTitle: "Problem framing"
+          },
+          de: {
+            label: "Projekt 3 — Problem framing",
+            body:  "Das Projekt zielte darauf ab, eine Visualisierung und ein Dashboard zu entwickeln, mit denen Nutzer die Struktur von Online-Gesprächen und die Ergebnisse der Sentiment-Analyse erkunden können. Die zentrale Herausforderung bestand darin, ein Werkzeug zu schaffen, das mehrere Perspektiven erlaubt – statt einer festen, autoritativen Darstellung der Daten. Ziel war es, Interaktionen zu gestalten, die die Konstruktion von Sentiment hinterfragen und eine kritische Auseinandersetzung mit algorithmischen Interpretationen fördern.",
+            indexTitle: "Problem framing"
+          },
+          fr: {
+            label: "Projet 3 — Problem framing",
+            body:  "Le projet visait à concevoir une visualisation et un tableau de bord permettant d’explorer la structure des conversations en ligne et les résultats de l’analyse de sentiment. Le principal défi était de proposer un outil offrant plusieurs perspectives plutôt qu’une présentation fixe et autoritaire des données. L’objectif était de créer des interactions qui questionnent la construction du sentiment et encouragent une lecture critique des interprétations algorithmiques.",
+            indexTitle: "Problématisation"
+          }
+        },
+        showTitle: false
+      },
+
+      
+
+      
+
+
+      /* B3) PROJECT 3 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      {
+        type: 'group',
+        layout: 'solutionsRow',
+        solutions: [
+          
+          {
+            type: 'video',
+            src: 'assets/video/project3_video1.mp4',
+            i18n: {
+              en: {
+                title: "Using interactivity as a tool for inquiry rather than passive display."
+              },
+              de: {
+                title: "Interaktivität als Mittel zur Untersuchung statt als passive Darstellung einsetzen."
+              },
+              fr: {
+                title: "Utiliser l’interactivité comme outil d’exploration plutôt que comme affichage passif."
+              }
+            }
+          },
+          {
+            type: 'video',
+            src: 'assets/video/project3_video2.mp4',
+            i18n: {
+              en: {
+                title: "Guiding interpretation through thoughtful interface cues and structure."
+              },
+              de: {
+                title: "Die Interpretation durch gezielte Interface-Hinweise und Strukturführung unterstützen."
+              },
+              fr: {
+                title: "Orienter l’interprétation grâce à des indices d’interface et une structure réfléchie."
+              }
+            }
+          },
+           {
+            type: 'video',
+            src: 'assets/video/project3_video3.mp4',
+            i18n: {
+              en: {
+                title: "“Enabling critical comparison between different algorithmic sentiment models."
+              },
+              de: {
+                title: "Kritische Vergleiche zwischen verschiedenen algorithmischen Sentiment-Modellen ermöglichen."
+              },
+              fr: {
+                title: "Permettre une comparaison critique entre différents modèles algorithmiques de sentiment."
+              }
+            }
+          }
+        ],
+        i18n: {
+          en: { indexTitle: "Solutions" },
+          de: { indexTitle: "Lösungen" },
+          fr: { indexTitle: "Solutions" }
+        },
+        showTitle: false
+      },
+
+
+
+
+      /* B4) PROJECT 3 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      {
+        type: 'text',
+        layout: 'resultsBlock',
+        i18n: {
+          en: {
+            label: "Project 3 — Key outcomes & results",
+            items: [
+              {
+                status: 'success',  // green dot
+                text: "The dashboard clearly revealed differences between sentiment models, helping users compare interpretations instead of relying on a single output."
+              },
+              {
+                status: 'success',  // green dot
+                text: "The interactive structure view made the conversation dynamics legible, allowing users to navigate through threads and uncover hidden patterns."
+              },
+              {
+                status: 'improve',  // red dot
+                text: "It remained challenging to balance open exploration with clear guidance: some users needed more support to understand how to navigate the visualization without being told exactly what to do."
+              }
+            ],
+            indexTitle: "Outcomes"
+          },
+          de: {
+            label: "Projekt 3 — Ergebnisse & Wirkung",
+            items: [
+              {
+                status: 'success',
+                text: "Das Dashboard zeigte die Unterschiede zwischen den Sentiment-Modellen klar auf und ermöglichte Nutzern einen Vergleich der Interpretationen, anstatt sich auf ein einziges Ergebnis zu verlassen."
+              },
+              {
+                status: 'success',
+                text: "Die interaktive Strukturansicht machte die Gesprächsdynamiken sichtbar und erlaubte es den Nutzern, Threads zu durchlaufen und verborgene Muster zu erkennen."
+              },
+              {
+                status: 'improve',
+                text: "Es war schwierig, offene Exploration mit ausreichender Orientierung zu verbinden: Einige Nutzer benötigten mehr Unterstützung, um die Visualisierung zu verstehen, ohne klare Anweisungen zu erhalten."
+              }
+            ],
+            indexTitle: "Ergebnisse"
+          },
+          fr: {
+            label: "Projet 3 — Résultats & effets",
+            items: [
+              {
+                status: 'success',
+                text: "Le dashboard a rendu les divergences entre modèles de sentiment visibles, permettant aux utilisateurs de comparer les interprétations plutôt que de dépendre d’un seul résultat."
+              },
+              {
+                status: 'success',
+                text: "La vue interactive de la structure a rendu les dynamiques de conversation plus lisibles et a permis d’explorer les fils pour révéler des motifs cachés."
+              },
+              {
+                status: 'improve',
+                text: "Il a été difficile de trouver l’équilibre entre exploration libre et orientation minimale : certains utilisateurs avaient besoin de plus de repères pour comprendre la visualisation sans recevoir d’instructions directes."
+              }
+            ],
+            indexTitle: "Résultats"
+          }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+
+    ///////////////4///////////////
+
+
+
+      /* B2) PROJECT 4–  PROBLEM FRAMING (TEXT BLOCK) */
+      {
+        type: 'text',
+        layout: 'textBlock',
+        i18n: {
+          en: {
+            label: "Project 1 — Problem framing",
+            body:  "The project consisted of redesigning an infographic that explained the composition of a housing module and the relationships between its elements. The original visualization was cluttered and failed to reflect the module’s simplicity, which was central to its design logic. The goal was to create a clear, readable, and intuitive representation that communicates both structure and conceptual straightforwardness.",
+            indexTitle: "Problem framing"
+          },
+          de: {
+            label: "Projekt 1 — Problem framing",
+            body:  "Das Projekt bestand darin, eine Infografik neu zu gestalten, die die Zusammensetzung eines Wohnmoduls und die Beziehungen zwischen seinen Elementen erklärt. Die ursprüngliche Visualisierung war unübersichtlich und spiegelte die Einfachheit des Moduls – ein zentraler Aspekt seines Konzepts – nicht wider. Ziel war es, eine klare, gut lesbare und intuitive Darstellung zu schaffen, die sowohl Struktur als auch Einfachheit kommuniziert.",
+            indexTitle: "Problem framing"
+          },
+          fr: {
+            label: "Projet 1 — Problem framing",
+            body:  "Le projet consistait à redesign une infographie présentant la composition d’un module d’habitation et les liens entre ses éléments. La visualisation initiale était confuse et ne reflétait pas la simplicité fondamentale du module, pourtant centrale à son concept. L’objectif était de produire une représentation claire, lisible et intuitive, exprimant à la fois la structure et la simplicité du système.",
+            indexTitle: "Problématisation"
+          }
+        },
+        showTitle: false
+      },
+
+      
+
+      /*4*/
+
+      {
+        type: 'group',
+        layout: 'solutionsRow',
+        solutions: [
+           {
+            type: 'img',
+            src: 'assets/img/project4_solution1.png',
+            i18n: {
+              en: {
+                title: "Redesigning an inefficient solution to enhance clarity and intuitive reading."
+              },
+              de: {
+                title: "Neugestaltung eines ineffizienten Diagramms zur Verbesserung der Klarheit und intuitiven Lesbarkeit."
+              },
+              fr: {
+                title: "Redessiner un schéma inefficace pour améliorer la clarté et la lecture intuitive."
+              }
+            }
+          },
+          {
+            type: 'img',
+            src: 'assets/img/project4_solution2.png',
+            i18n: {
+              en: {
+                title: "Using interaction to strengthen comprehension of the module’s structure."
+              },
+              de: {
+                title: "Interaktion nutzen, um das Verständnis der Modulstruktur zu vertiefen."
+              },
+              fr: {
+                title: "Utiliser l’interaction pour renforcer la compréhension de la structure du module."
+              }
+            }
+          },
+          {
+            type: 'img',
+            src: 'assets/img/project4_solution3.png',
+            i18n: {
+              en: {
+                title: "Supporting layered information discovery through interaction and multiple views."
+              },
+              de: {
+                title: "Schichtweises Entdecken von Informationen durch Interaktion und mehrere Perspektiven unterstützen."
+              },
+              fr: {
+                title: "Permettre une découverte progressive des informations via l’interaction et plusieurs vues."
+              }
+            }
+          }
+        ],
+        i18n: {
+          en: { indexTitle: "Solutions" },
+          de: { indexTitle: "Lösungen" },
+          fr: { indexTitle: "Solutions" }
+        },
+        showTitle: false
+      },
+
+
+
+
+      /* B4) PROJECT 1 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      {
+        type: 'text',
+        layout: 'resultsBlock',
+        i18n: {
+          en: {
+            label: "Project 1 — Key outcomes & results",
+            items: [
+              {
+                status: 'success',  // green dot
+                text: "The redesign significantly improved clarity and made the composition easier to read and understand."
+              },
+              {
+                status: 'success',  // green dot
+                text: "The visualization successfully communicated the housing module’s simplicity, which had been lost in the original version."
+              },
+              {
+                status: 'improve',  // red dot
+                text: "Because the original solution was static, the new interactive version required more user interaction to access the full set of information, which sometimes slowed down understanding."
+              }
+            ],
+            indexTitle: "Outcomes"
+          },
+          de: {
+            label: "Projekt 1 — Ergebnisse & Wirkung",
+            items: [
+              {
+                status: 'success',
+                text: "Das Redesign verbesserte die Klarheit deutlich und machte die Zusammensetzung leichter verständlich."
+              },
+              {
+                status: 'success',
+                text: "Die Visualisierung vermittelte erfolgreich die Einfachheit des Wohnmoduls, die in der ursprünglichen Version nicht sichtbar war."
+              },
+              {
+                status: 'improve',
+                text: "Da die ursprüngliche Lösung statisch war, erforderte die neue interaktive Version mehr Nutzerinteraktion, um alle Informationen zu erhalten, was das Verständnis teilweise verlangsamte."
+              }
+            ],
+            indexTitle: "Ergebnisse"
+          },
+          fr: {
+            label: "Projet 1 — Résultats & effets",
+            items: [
+              {
+                status: 'success',
+                text: "Le redesign a nettement amélioré la clarté et rendu la composition plus facile à lire et à comprendre."
+              },
+              {
+                status: 'success',
+                text: "La visualisation a réussi à transmettre la simplicité du module d’habitation, absente dans la version initiale."
+              },
+              {
+                status: 'improve',
+                text: "Comme la solution initiale était statique, la nouvelle version interactive demandait davantage d’interactions pour accéder à l’ensemble des informations, ce qui ralentissait parfois la compréhension."
+              }
+            ],
+            indexTitle: "Résultats"
+          }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+      /* C) CONTACT PAGE (with image + contact layout) */
+      {
+        type: 'image',
+        layout: 'contact',
+        src: 'assets/svg/C_EndPage.svg',
+        i18n: {
+          en: { src:'assets/svg/en/C_EndPage.svg', indexTitle:'Contact' },
+          de: { src:'assets/svg/de/C_EndPage.svg', indexTitle:'Kontakt' },
+          fr: { src:'assets/svg/fr/C_EndPage.svg', indexTitle:'Contact' }
+        },
+        showTitle: false
+      }
+    ];
+
+
+
+
+
+    /* ============ DOM HOOKS ============ */
+    const scroller       = document.getElementById('scroller');
+    const indexOverlay   = document.getElementById('indexOverlay');
+    const indexList      = document.getElementById('indexList');
+    const indexTitleLabel= document.getElementById('indexTitleLabel');
+    const indexCloseHint = document.getElementById('indexCloseHint');
+    const cursor         = document.getElementById('cursor');
+
+    let cursorVisible       = false;
+    const rendered          = []; // per slide
+    let lastNonContactSlide = null; // remember source slide when using "Contact"
+    let lastActiveIdx       = 0;
+
+    // For intro typing animation
+
+
+    let introRafId = null;
+
+    /* ============ BUILD HELPERS ============ */
+    function buildTitleNode(rawTitle){
+      const box = document.createElement('div');
+      box.className = 'slide-title';
+      const parts = (rawTitle || '').split('\n');
+      const mainLine = parts.shift() || '';
+      const rest = parts.join('\n');
+
+      const mainSpan = document.createElement('span');
+      mainSpan.className = 'title-main';
+      mainSpan.textContent = mainLine;
+      box.appendChild(mainSpan);
+
+      if (rest.trim() !== '') {
+        const subSpan = document.createElement('span');
+        subSpan.className = 'title-sub';
+        subSpan.textContent = rest;
+        box.appendChild(subSpan);
+      }
+      return box;
+    }
+
+    function buildCTAButton(slideIndex, ctaType){
+      if (!ctaType) return null;
+      const key =
+        (ctaType === 'see-project' || ctaType === 'seeProject') ? 'seeProject' :
+        (ctaType === 'discover2' ? 'discover2' : 'discover');
+
+      const text = uiStrings[key][currentLang];
+
+      const btn = document.createElement('button');
+      btn.className = 'cta-btn';
+      btn.type = 'button';
+      btn.textContent = text;
+      btn.dataset.ctaKey = key; // remember which translation key to use later
+      btn.setAttribute('data-jump-from', String(slideIndex));
+
+      btn.addEventListener('pointerenter', () => setCursorSolid(true));
+      btn.addEventListener('pointerleave', () => setCursorSolid(false));
+      btn.addEventListener('click', () => {
+        const slidesEl = Array.from(scroller.querySelectorAll('.slide'));
+        const target = slidesEl[slideIndex + 1];
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return btn;
+    }
+
+    function buildIndexButton(){
+      const btn = document.createElement('button');
+      btn.className = 'index-btn';
+      btn.type = 'button';
+      btn.textContent = uiStrings.indexBtn[currentLang];
+      btn.addEventListener('pointerenter', () => setCursorSolid(true));
+      btn.addEventListener('pointerleave', () => setCursorSolid(false));
+      btn.addEventListener('click', openIndexOverlay);
+      return btn;
+    }
+
+    function buildContactButton(){
+      const btn = document.createElement('button');
+      btn.className = 'contact-btn';
+      btn.type = 'button';
+      btn.textContent = uiStrings.contactBtn[currentLang];
+
+      btn.addEventListener('pointerenter', () => setCursorSolid(true));
+      btn.addEventListener('pointerleave', () => setCursorSolid(false));
+      btn.addEventListener('click', () => {
+        const slidesEl   = Array.from(scroller.querySelectorAll('.slide'));
+        const lastSlideEl= slidesEl[slides.length - 1];
+        const currentIdx = getCurrentSlideIndex();
+
+        if (btn.getAttribute('data-mode') === 'back') {
+          if (lastNonContactSlide != null) {
+            const backTarget = slidesEl[lastNonContactSlide];
+            if (backTarget) backTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+        lastNonContactSlide = currentIdx;
+        if (lastSlideEl) lastSlideEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      return btn;
+    }
+
+    function buildLangSwitch(){
+      const wrap = document.createElement('div');
+      wrap.className = 'lang-switch';
+      supportedLangs.forEach(code => {
+        const opt = document.createElement('button');
+        opt.type = 'button';
+        opt.className = 'lang-option';
+        opt.textContent = code.toUpperCase();
+        if (code === currentLang) opt.classList.add('is-active');
+
+        opt.addEventListener('pointerenter', () => setCursorSolid(true));
+        opt.addEventListener('pointerleave', () => setCursorSolid(false));
+        opt.addEventListener('click', () => setLanguage(code));
+
+        wrap.appendChild(opt);
+      });
+      return wrap;
+    }
+
+    /* ============ RENDER SLIDES ============ */
+    slides.forEach((s, idx) => {
+      const slide = document.createElement('section');
+      slide.className = 'slide';
+      slide.setAttribute('data-index', idx);
+
+      // Top bar: index / contact / lang
+      const idxBtnEl     = buildIndexButton();
+      const contactBtnEl = buildContactButton();
+      const langEl       = buildLangSwitch();
+
+      const topBar = document.createElement('div');
+      topBar.className = 'slide-topbar';
+      topBar.appendChild(idxBtnEl);
+      topBar.appendChild(contactBtnEl);
+      topBar.appendChild(langEl);
+      slide.appendChild(topBar);
+
+      let mediaEl = null;
+      let titleEl = null;
+      let introLabelEl = null;
+      let introBodyEl  = null;
+      let introMainEl  = null;
+      let introSubEl   = null;
+      let contactBlockEl = null;
+      let cvLinkEl = null;
+
+
+
+
+    // --- INTRO ANIMATED SLIDE ---
+if (s.layout === 'introAnimated') {
+  slide.classList.add('intro-slide');
+
+  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
+  const mainText = langPack.main || '';
+  const subText  = langPack.sub  || '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'intro-inner';
+
+  // TEXT (full text, animation handled by CSS)
+  const mainEl = document.createElement('p');
+  mainEl.className = 'intro-main';
+  mainEl.textContent = mainText;
+
+  const subEl = document.createElement('p');
+  subEl.className = 'intro-sub';
+  subEl.textContent = subText;
+
+  wrap.appendChild(mainEl);
+  wrap.appendChild(subEl);
+
+
+    // scroll hint
+  const hint = document.createElement('div');
+  hint.className = 'scroll-hint intro-scroll-hint';
+  hint.textContent = uiStrings.scrollHint[currentLang];
+  wrap.appendChild(hint);
+
+
+  // HEADER (photo + name + title)
+  const header = document.createElement('div');
+  header.className = 'contact-header intro-header';
+
+  const avatarWrap = document.createElement('div');
+  avatarWrap.className = 'contact-avatar';
+  const avatarImg = new Image();
+  avatarImg.src = contactImageSrc;
+  avatarImg.alt = 'Portrait of Joé Mertenat';
+  avatarWrap.appendChild(avatarImg);
+
+  const headerText = document.createElement('div');
+  headerText.className = 'contact-header-text';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'contact-name';
+  nameEl.textContent = 'Joé Mertenat';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'contact-title';
+  const titleByLang = {
+    en: 'Information & Interaction Designer',
+    de: 'Information & Interaction Designer',
+    fr: 'Information & Interaction Designer'
+  };
+  titleEl.textContent = titleByLang[currentLang] || titleByLang.en;
+
+  headerText.appendChild(nameEl);
+  headerText.appendChild(titleEl);
+
+  header.appendChild(avatarWrap);
+  header.appendChild(headerText);
+
+  wrap.appendChild(header);
+  slide.appendChild(wrap);
+
+  // OPTIONAL: if you still use a CTA here, keep it
+  const ctaBtn = buildCTAButton(idx, s.ctaType);
+  if (ctaBtn) slide.appendChild(ctaBtn);
+
+  rendered.push({
+    slide,
+    mediaEl,
+    titleEl,
+    introLabelEl: null,
+    introBodyEl: null,
+    introMainEl: mainEl,
+    introSubEl: subEl,
+    introMainText: null,   // no more typing text storage
+    introSubText: null,
+    introHeaderEl: header,
+    cvLinkEl,
+    contactBlockEl,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: ctaBtn,
+    scrollHintEl: hint      
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+      // --- TEXT BLOCK SLIDES (problem framing, outcomes, etc.) ---
+if (s.layout === 'textBlock') {
+  slide.classList.add('text-block-slide');
+
+  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
+  const labelText = langPack.label || '';
+  const bodyText  = langPack.body || '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'text-block-inner';
+
+  const labelEl = document.createElement('p');
+  labelEl.className = 'text-block-label';
+  labelEl.textContent = labelText;
+
+  const bodyEl = document.createElement('p');
+  bodyEl.className = 'text-block-main';
+  bodyEl.textContent = bodyText;
+
+  wrap.appendChild(labelEl);
+  wrap.appendChild(bodyEl);
+  slide.appendChild(wrap);
+
+  // optional CTA button (if you still want it on some text blocks)
+  const ctaBtn = buildCTAButton(idx, s.ctaType);
+  if (ctaBtn) slide.appendChild(ctaBtn);
+
+  // 🔹 small "Scroll to discover" hint (same style as intro)
+  const scrollHint = document.createElement('div');
+  scrollHint.className = 'scroll-hint';
+  scrollHint.textContent = uiStrings.scrollHint[currentLang];
+  slide.appendChild(scrollHint);
+
+  rendered.push({
+    slide,
+    mediaEl,
+    titleEl,
+    introLabelEl: labelEl,
+    introBodyEl: bodyEl,
+    introMainEl,
+    introSubEl,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl,
+    contactBlockEl,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: ctaBtn,
+    scrollHintEl: scrollHint   // ⬅ store reference for language updates
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+// --- RESULTS BLOCK SLIDE (multiple small paragraphs with lines + nav) ---
+if (s.layout === 'resultsBlock') {
+  slide.classList.add('results-slide');
+
+  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
+  const labelText = langPack.label || '';
+  const items = langPack.items || [];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'results-inner';
+
+  // label (top line)
+  const labelEl = document.createElement('p');
+  labelEl.className = 'results-label';
+  labelEl.textContent = labelText;
+  wrap.appendChild(labelEl);
+
+  // grid with multiple paragraphs
+  const grid = document.createElement('div');
+  grid.className = 'results-grid';
+
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'result-item';
+
+    // vertical colored line
+    const line = document.createElement('span');
+    line.className = 'result-line ' +
+      (item.status === 'success'
+        ? 'result-line-success'
+        : 'result-line-improve');
+    card.appendChild(line);
+
+    const p = document.createElement('p');
+    p.className = 'result-text';
+
+    const inner = document.createElement('span');
+    inner.className = 'result-text-inner';
+
+    const textSpan = document.createElement('span');
+    textSpan.textContent = item.text || '';
+
+    inner.appendChild(textSpan);
+    p.appendChild(inner);
+    card.appendChild(p);
+    grid.appendChild(card);
+  });
+
+  wrap.appendChild(grid);
+
+
+
+  // --- NAV BUTTONS UNDER RESULTS ---
+const nav = document.createElement('div');
+nav.className = 'results-nav';
+
+// detect if this is the last project results slide
+// (the last resultsBlock in your slides array)
+const isLastResultsSlide = (() => {
+  // find all result-block slide indices
+  const allResultsIndices = slides
+    .map((sl, i) => sl.layout === 'resultsBlock' ? i : null)
+    .filter(i => i !== null);
+
+  return idx === allResultsIndices[allResultsIndices.length - 1];
+})();
+
+// --- Back to selection button ---
+const btnBack = document.createElement('button');
+btnBack.type = 'button';
+btnBack.className = 'results-nav-btn back-btn';
+btnBack.textContent = uiStrings.resultsBackToSelection[currentLang];
+
+btnBack.addEventListener('pointerenter', () => setCursorSolid(true));
+btnBack.addEventListener('pointerleave', () => setCursorSolid(false));
+
+btnBack.addEventListener('click', () => {
+  const slidesEl = Array.from(scroller.querySelectorAll('.slide'));
+  const overviewIdx = slides.findIndex(sl => sl.layout === 'projectsOverview');
+  if (overviewIdx >= 0 && slidesEl[overviewIdx]) {
+    slidesEl[overviewIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+
+// --- Next project button (only if NOT last project) ---
+let btnNext = null;
+
+if (!isLastResultsSlide) {
+  btnNext = document.createElement('button');
+  btnNext.type = 'button';
+  btnNext.className = 'results-nav-btn';
+  btnNext.textContent = uiStrings.resultsNextProject[currentLang];
+
+  btnNext.addEventListener('pointerenter', () => setCursorSolid(true));
+  btnNext.addEventListener('pointerleave', () => setCursorSolid(false));
+
+  btnNext.addEventListener('click', () => {
+    const slidesEl = Array.from(scroller.querySelectorAll('.slide'));
+    const targetIdx = Math.min(slides.length - 1, idx + 1);
+    if (slidesEl[targetIdx]) {
+      slidesEl[targetIdx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  nav.appendChild(btnNext);
+}
+
+// always add the Back button
+nav.appendChild(btnBack);
+wrap.appendChild(nav);
+
+
+  slide.appendChild(wrap);
+
+  rendered.push({
+    slide,
+    mediaEl,
+    titleEl,
+    introLabelEl: labelEl,
+    introBodyEl: null,
+    introMainEl,
+    introSubEl,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl,
+    contactBlockEl,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: null,
+    resultsGridEl: grid,
+    resultsNavNextEl: btnNext,
+    resultsNavBackEl: btnBack
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+
+  // --- PROJECT INTRO PAGE (gradient title + inline metadata + list) ---
+if (s.layout === 'projectIntro') {
+  slide.classList.add('project-intro');
+
+  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
+
+  const wrap = document.createElement('div');
+  wrap.className = 'project-intro-inner';
+
+  // title
+  const t = document.createElement('p');
+  t.className = 'project-intro-title';
+  t.textContent = langPack.title || '';
+
+  // --- INLINE METADATA (domain | type | date) ---
+  const metaWrap = document.createElement('div');
+  metaWrap.className = 'project-meta';
+
+  const metaRow = document.createElement('div');
+  metaRow.className = 'project-meta-inline';
+
+  function makeMetaItem(text) {
+    const span = document.createElement('span');
+    span.className = 'project-meta-item';
+    span.textContent = text;
+    return span;
+  }
+
+  function makeSep() {
+    const sep = document.createElement('span');
+    sep.className = 'project-meta-sep';
+    sep.textContent = '|';
+    return sep;
+  }
+
+  const domain = langPack.domain || '';
+  const type   = langPack.type   || '';
+  const date   = langPack.date   || '';
+
+  if (domain) metaRow.appendChild(makeMetaItem(domain));
+  if (type) {
+    if (domain) metaRow.appendChild(makeSep());
+    metaRow.appendChild(makeMetaItem(type));
+  }
+  if (date) {
+    if (domain || type) metaRow.appendChild(makeSep());
+    metaRow.appendChild(makeMetaItem(date));
+  }
+
+  metaWrap.appendChild(metaRow);
+
+  // body (optional – if you use it)
+  const b = document.createElement('p');
+  b.className = 'project-intro-body';
+  b.textContent = langPack.body || '';
+
+  // list of competences
+  const list = document.createElement('ul');
+  list.className = 'project-intro-list';
+  (langPack.competences || []).forEach(item => {
+    const li = document.createElement('li');
+    li.textContent = item;
+    list.appendChild(li);
+  });
+
+  wrap.appendChild(t);
+  wrap.appendChild(metaWrap);
+  wrap.appendChild(b);
+  wrap.appendChild(list);
+
+  slide.appendChild(wrap);
+
+  const ctaBtn = buildCTAButton(idx, s.ctaType);
+  if (ctaBtn) slide.appendChild(ctaBtn);
+
+  rendered.push({
+    slide,
+    mediaEl: null,
+    titleEl: null,
+    introLabelEl: t,
+    introBodyEl: b,
+    introMainEl: null,
+    introSubEl: null,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl: null,
+    contactBlockEl: null,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: ctaBtn,
+    listEl: list,
+    metaWrapEl: metaWrap,
+    metaRowEl: metaRow   // ⬅ instead of metaDomainEl / metaTypeEl / metaDateEl
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+// --- SKILLS / COMPETENCES FORCE DIAGRAM ---
+if (s.layout === 'skillsMap') {
+  slide.classList.add('skills-slide');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'skills-inner';
+
+  const svgNS  = 'http://www.w3.org/2000/svg';
+  const svgEl  = document.createElementNS(svgNS, 'svg');
+  // we’ll hook D3 on this element
+  wrap.appendChild(svgEl);
+  slide.appendChild(wrap);
+
+  // build the force diagram in this SVG
+  buildSkillsForceDiagram(svgEl);
+
+  rendered.push({
+    slide,
+    mediaEl: null,
+    titleEl: null,
+    introLabelEl: null,
+    introBodyEl: null,
+    introMainEl: null,
+    introSubEl: null,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl: null,
+    contactBlockEl: null,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: null
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+// --- SOLUTIONS ROW (HORIZONTAL CAROUSEL OF IMAGES / VIDEOS) ---
+if (s.layout === 'solutionsRow') {
+  slide.classList.add('solutions-slide');
+
+  const inner = document.createElement('div');
+  inner.className = 'solutions-inner';
+
+  const track = document.createElement('div');
+  track.className = 'solutions-track';
+  inner.appendChild(track);
+
+  const solutionItemRefs = [];
+
+  (s.solutions || []).forEach((itemConf, solIdx) => {
+    const langPackItem =
+      itemConf.i18n?.[currentLang] ||
+      itemConf.i18n?.en ||
+      {};
+
+    const card = document.createElement('article');
+    card.className = 'solution-item';
+
+    // title inside the card, top-left
+    const titleNode = document.createElement('p');
+    titleNode.className = 'solution-title';
+    titleNode.textContent = langPackItem.title || itemConf.title || '';
+    card.appendChild(titleNode);
+
+    // media container
+    const stage = document.createElement('figure');
+    stage.className = 'solution-stage';
+
+    let mediaNode = null;
+
+    // unified wrapper for both video and image (png/jpg)
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.display = 'flex';
+    wrapper.style.justifyContent = 'center';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.overflow = 'hidden';
+    // shift a bit upward (tweak -5% / -10% if you want)
+    wrapper.style.transform = 'translateY(4%)';
+
+    if (itemConf.type === 'video') {
+      const vid = document.createElement('video');
+      vid.src = itemConf.src;
+      vid.playsInline = true;
+      vid.muted = true;
+      vid.autoplay = true;
+      vid.loop = true;
+
+      vid.style.width = '100%';
+      vid.style.height = '100%';
+      vid.style.objectFit = 'contain';
+
+      mediaNode = vid;
+      wrapper.appendChild(vid);
+    } else if (
+      itemConf.type === 'image' ||
+      itemConf.type === 'png'   ||
+      itemConf.type === 'img'
+    ) {
+      const img = new Image();
+      img.src = langPackItem.src || itemConf.src;
+      img.alt = langPackItem.title || itemConf.title || `Solution ${solIdx + 1}`;
+      img.loading = 'lazy';
+      img.decoding = 'async';
+
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+
+      mediaNode = img;
+      wrapper.appendChild(img);
+    }
+
+    // only append wrapper if we actually created media
+    if (mediaNode) {
+      stage.appendChild(wrapper);
+    }
+
+    card.appendChild(stage);
+    track.appendChild(card);
+
+    solutionItemRefs.push({
+      itemIndex: solIdx,
+      titleEl: titleNode,
+      mediaEl: mediaNode
+    });
+  });
+
+  slide.appendChild(inner);
+
+  rendered.push({
+    slide,
+    mediaEl: null,
+    titleEl: null,
+    introLabelEl: null,
+    introBodyEl: null,
+    introMainEl: null,
+    introSubEl: null,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl: null,
+    contactBlockEl: null,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: null,
+    solutionsItems: solutionItemRefs
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+// --- PROJECTS OVERVIEW SLIDE (cards) ---
+if (s.layout === 'projectsOverview') {
+  slide.classList.add('projects-overview');
+
+  const wrap = document.createElement('div');
+  wrap.className = 'projects-overview-inner';
+
+  const grid = document.createElement('div');
+  grid.className = 'projects-grid';
+
+  // mapping from project id to first slide index of that project
+  const projectFirstSlideIndex = {
+    p1: 3,   // Project 1 — first projectIntro
+    p2: 6,   // Project 2 — first projectIntro
+    p3: 9,   // Project 3 — first projectIntro
+    p4: 12   // Project 4 — first projectIntro
+  };
+
+  // optional thumbnails per project (PNG)
+  const projectThumbs = {
+    p1: 'assets/img/project1_thumb.png',
+    p2: 'assets/img/project2_thumb.png',
+    p3: 'assets/img/project3_thumb.png',
+    p4: 'assets/img/project4_thumb.png'
+  };
+
+  // NEW: store references to text elements per project
+  const projectsOverviewCards = {}; 
+  // structure: { p1: { titleEl, domainEl, typeEl, yearEl }, ... }
+
+  projectsMeta.forEach(pm => {
+    const projLang = pm.i18n?.[currentLang] || pm.i18n?.en || {};
+
+    const card = document.createElement('article');
+    card.className = 'project-card';
+    card.setAttribute('data-project-id', pm.id);
+
+    // title
+    const titleEl = document.createElement('h3');
+    titleEl.className = 'project-card-title';
+    titleEl.textContent = projLang.title || '';
+    card.appendChild(titleEl);
+
+    // meta (domain / type / year – vertical stack)
+    const metaRow = document.createElement('div');
+    metaRow.className = 'project-card-meta-row';
+
+    const domainEl = document.createElement('div');
+    domainEl.className = 'project-card-meta';
+    domainEl.textContent = projLang.domain || '';
+    metaRow.appendChild(domainEl);
+
+    const typeEl = document.createElement('div');
+    typeEl.className = 'project-card-meta';
+    typeEl.textContent = projLang.type || '';
+    metaRow.appendChild(typeEl);
+
+    const yearEl = document.createElement('div');
+    yearEl.className = 'project-card-meta';
+    yearEl.textContent = projLang.year || '';
+    metaRow.appendChild(yearEl);
+
+    card.appendChild(metaRow);
+
+    // thumbnail zone just under meta
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'project-card-thumb';
+
+    const thumbSrc = projectThumbs[pm.id];
+    if (thumbSrc) {
+      const img = new Image();
+      img.src = thumbSrc;
+      img.alt = projLang.title || '';
+      thumbWrap.appendChild(img);
+    }
+    card.appendChild(thumbWrap);
+
+    // NEW: save refs for this project
+    projectsOverviewCards[pm.id] = {
+      titleEl,
+      domainEl,
+      typeEl,
+      yearEl
+    };
+
+    // Scroll to the right project block when clicked
+    card.addEventListener('click', () => {
+      const slidesEl = Array.from(scroller.querySelectorAll('.slide'));
+      const targetIndex = projectFirstSlideIndex[pm.id];
+      if (targetIndex != null && slidesEl[targetIndex]) {
+        slidesEl[targetIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    grid.appendChild(card);
+  });
+
+  wrap.appendChild(grid);
+  slide.appendChild(wrap);
+
+  rendered.push({
+    slide,
+    mediaEl: null,
+    titleEl: null,
+    introLabelEl: null,
+    introBodyEl: null,
+    introMainEl: null,
+    introSubEl: null,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl: null,
+    contactBlockEl: null,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: null,
+    // NEW: store card refs in rendered
+    projectsOverviewCards
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+
+
+
+
+/* 👇 ADD THIS BLOCK DIRECTLY HERE, after projectIntro and BEFORE the project pages part */
+
+// --- CONTACT PAGE (new layout) ---
+if (s.layout === 'contact') {
+  slide.classList.add('contact-slide');
+
+  // Card wrapper
+  const card = document.createElement('div');
+  card.className = 'contact-card';
+
+  // header: avatar + name/title
+  const header = document.createElement('div');
+  header.className = 'contact-header';
+
+  const avatarWrap = document.createElement('div');
+  avatarWrap.className = 'contact-avatar';
+  const avatarImg = new Image();
+  avatarImg.src = contactImageSrc;
+  avatarImg.alt = 'Portrait of Joé Mertenat';
+  avatarWrap.appendChild(avatarImg);
+
+  const headerText = document.createElement('div');
+  headerText.className = 'contact-header-text';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'contact-name';
+  nameEl.textContent = 'Joé Mertenat';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'contact-title';
+  const titleByLang = {
+    en: 'Information & Interaction Designer',
+    de: 'Information & Interaction Designer',
+    fr: 'Information & Interaction Designer'
+  };
+  titleEl.textContent = titleByLang[currentLang] || titleByLang.en;
+
+  headerText.appendChild(nameEl);
+  headerText.appendChild(titleEl);
+
+  header.appendChild(avatarWrap);
+  header.appendChild(headerText);
+
+  // details + CV button
+  const details = document.createElement('div');
+  details.className = 'contact-details';
+
+  contactBlockEl = document.createElement('div');
+  contactBlockEl.className = 'contact-block';
+  contactBlockEl.textContent = uiStrings.contactBlock[currentLang];
+
+  cvLinkEl = document.createElement('button');
+  cvLinkEl.type = 'button';
+  cvLinkEl.className = 'cv-link';
+  cvLinkEl.textContent = uiStrings.cvDownload[currentLang];
+  cvLinkEl.addEventListener('click', () =>
+    window.open(cvPaths[currentLang] || cvPaths.en, '_blank')
+  );
+  cvLinkEl.addEventListener('pointerenter', () => setCursorSolid(true));
+  cvLinkEl.addEventListener('pointerleave', () => setCursorSolid(false));
+
+  details.appendChild(contactBlockEl);
+  details.appendChild(cvLinkEl);
+
+  card.appendChild(header);
+  card.appendChild(details);
+  slide.appendChild(card);
+
+  rendered.push({
+    slide,
+    mediaEl: null,
+    titleEl: null,
+    introLabelEl: null,
+    introBodyEl: null,
+    introMainEl: null,
+    introSubEl: null,
+    introMainText: null,
+    introSubText: null,
+    cvLinkEl,
+    contactBlockEl,
+    idxBtnEl,
+    contactBtnEl,
+    langEl,
+    conf: s,
+    ctaEl: null
+  });
+
+  scroller.appendChild(slide);
+  return;
+}
+
+            // --- PROJECT PAGES (centered media + small title top-left) ---
+      const isMediaText = (s.layout === 'mediaText') && (s.type === 'image' || s.type === 'video');
+      if (isMediaText) {
+        slide.classList.add('media-text');
+      }
+
+      const stage = document.createElement('figure');
+      stage.className = 'stage';
+      stage.style.margin = 0;
+
+      if (s.type === 'video') {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'video-wrapper';
+        const vid = document.createElement('video');
+        vid.src = s.src;
+        vid.playsInline = true;
+        vid.muted = true;
+        vid.autoplay = true;
+        vid.loop = true;
+        mediaEl = vid;
+        wrapper.appendChild(vid);
+        stage.appendChild(wrapper);
+      } else if (s.type === 'image') {
+        const img = new Image();
+        img.src = s.src;
+        img.alt = `Slide ${idx+1}`;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        mediaEl = img;
+        stage.appendChild(img);
+      }
+
+      // Title for media-text slides
+      const langPackInitial = s.i18n?.[currentLang] || s.i18n?.en || {};
+      const initialTitle = (langPackInitial.title) || s.title || '';
+
+      if (s.showTitle && (initialTitle || '').trim() !== '') {
+        titleEl = buildTitleNode(initialTitle);
+      }
+
+      // CTA if any
+      const ctaBtn = buildCTAButton(idx, s.ctaType);
+
+      // Layout: media-text or "simple"
+      if (isMediaText) {
+        // title as overlay top-left, media centered by flex parent
+        if (titleEl) slide.appendChild(titleEl);
+        if (mediaEl) slide.appendChild(stage);
+      } else {
+        if (titleEl) slide.appendChild(titleEl);
+        if (mediaEl) slide.appendChild(stage);
+      }
+
+      if (ctaBtn) slide.appendChild(ctaBtn);
+
+      rendered.push({
+        slide,
+        mediaEl,
+        titleEl,
+        introLabelEl,
+        introBodyEl,
+        introMainEl,
+        introSubEl,
+        introMainText: null,
+        introSubText: null,
+        cvLinkEl,
+        contactBlockEl,
+        idxBtnEl,
+        contactBtnEl,
+        langEl,
+        conf: s,
+        ctaEl: ctaBtn
+      });
+
+      scroller.appendChild(slide);
+    });
+
+
+    /* ============ INDEX OVERLAY CONTENT ============ */
+    function buildIndexOverlayContents() {
+      indexList.innerHTML = "";
+      const activeIdx = lastActiveIdx;
+
+      indexGroups.forEach(group => {
+        const sectionTitle = document.createElement('div');
+        sectionTitle.className = 'index-section-title';
+        sectionTitle.textContent =
+          group.headingI18n?.[currentLang] || group.headingI18n?.en || '';
+        indexList.appendChild(sectionTitle);
+
+        const groupWrap = document.createElement('div');
+        groupWrap.className = 'index-list-group';
+
+        group.indices.forEach(i => {
+          const slideConf = slides[i];
+          const itemBtn = document.createElement('button');
+          itemBtn.type = 'button';
+          itemBtn.className = 'index-item-btn';
+          itemBtn.setAttribute('data-goto', String(i));
+
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'index-title';
+          const idxTitle =
+            slideConf.i18n?.[currentLang]?.indexTitle ||
+            slideConf.i18n?.en?.indexTitle ||
+            slideConf.title ||
+            `Slide ${i + 1}`;
+          titleDiv.textContent = idxTitle;
+          itemBtn.appendChild(titleDiv);
+
+          if (i === activeIdx) itemBtn.classList.add('is-active');
+
+          itemBtn.addEventListener('pointerenter', () => setCursorSolid(true));
+          itemBtn.addEventListener('pointerleave', () => setCursorSolid(false));
+          itemBtn.addEventListener('click', () => {
+            const slideEls = Array.from(scroller.querySelectorAll('.slide'));
+            const target = slideEls[i];
+            if (target) {
+              closeIndexOverlay();
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          });
+
+          groupWrap.appendChild(itemBtn);
+        });
+
+        indexList.appendChild(groupWrap);
+      });
+    }
+
+    buildIndexOverlayContents();
+
+    /* ============ ACTIVE SLIDE HELPERS ============ */
+    function getCurrentSlideIndex() {
+      const slidesEl = Array.from(document.querySelectorAll('.slide'));
+      const midEl = document
+        .elementFromPoint(window.innerWidth / 2, window.innerHeight / 2)
+        ?.closest('.slide');
+      return slidesEl.indexOf(midEl);
+    }
+
+    function updateIndexHighlight() {
+      let activeIdx = getCurrentSlideIndex();
+
+      const overlayOpen = indexOverlay.getAttribute('aria-hidden') === 'false';
+      if (activeIdx < 0 || overlayOpen) activeIdx = lastActiveIdx;
+
+      if (activeIdx >= 0) lastActiveIdx = activeIdx;
+
+      const allBtns = indexList.querySelectorAll('.index-item-btn');
+      allBtns.forEach(btn => {
+        const goto = parseInt(btn.getAttribute('data-goto'), 10);
+        btn.classList.toggle('is-active', goto === activeIdx);
+      });
+    }
+
+    /* ============ INTRO TYPING ANIMATION ============ */
+     
+
+    /* ============ OVERLAY OPEN/CLOSE ============ */
+    function openIndexOverlay(){
+      indexOverlay.style.display = 'flex';
+      indexOverlay.setAttribute('aria-hidden', 'false');
+      indexTitleLabel.textContent = uiStrings.indexTitle[currentLang];
+      indexCloseHint.textContent  = uiStrings.indexCloseHint[currentLang];
+      buildIndexOverlayContents();
+      updateIndexHighlight();
+    }
+
+    function closeIndexOverlay(){
+      indexOverlay.style.display = 'none';
+      indexOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    indexOverlay.addEventListener('click', (e) => {
+      const panel = e.target.closest('.index-panel');
+      if (!panel) closeIndexOverlay();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeIndexOverlay();
+    });
+
+    /* ============ CUSTOM CURSOR ============ */
+    function setCursorSolid(solid){
+      if (!cursorVisible) return;
+      cursor.classList.toggle('solid', !!solid);
+    }
+
+    function handlePointer(e){
+      cursor.classList.add('visible');
+      cursorVisible = true;
+      const onHot =
+        !!e.target.closest('.index-btn') ||
+        !!e.target.closest('.contact-btn') ||
+        !!e.target.closest('.lang-switch') ||
+        !!e.target.closest('.cta-btn') ||
+        !!e.target.closest('.index-item-btn') ||
+        !!e.target.closest('.cv-link');
+      cursor.classList.toggle('solid', onHot);
+    }
+
+    let px = 0, py = 0, tx = 0, ty = 0;
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    function raf(){
+      px = lerp(px, tx, 0.25);
+      py = lerp(py, ty, 0.25);
+      cursor.style.transform = `translate(${px - 20}px, ${py - 20}px)`;
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    window.addEventListener('pointermove', (e) => {
+      tx = e.clientX;
+      ty = e.clientY;
+      handlePointer(e);
+    }, { passive: true });
+
+    window.addEventListener('pointerleave', () => {
+      cursor.classList.remove('visible', 'solid');
+      cursorVisible = false;
+    });
+
+    /* ============ CONTACT BUTTON MODE ============ */
+    function updateContactButtonModes() {
+      const currentIdx = getCurrentSlideIndex();
+      const isOnLast  = currentIdx === slides.length - 1;
+
+      rendered.forEach(r => {
+        const btn = r.contactBtnEl;
+        if (!btn) return;
+
+        if (isOnLast) {
+          if (lastNonContactSlide != null) {
+            btn.textContent = uiStrings.backBtn[currentLang];
+            btn.setAttribute('data-mode', 'back');
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+          } else {
+            btn.style.opacity = '0';
+            btn.style.pointerEvents = 'none';
+            btn.removeAttribute('data-mode');
+            btn.textContent = uiStrings.contactBtn[currentLang];
+          }
+        } else {
+          btn.textContent = uiStrings.contactBtn[currentLang];
+          btn.setAttribute('data-mode', 'contact');
+        }
+      });
+    }
+
+    /* ============ BUTTON VISIBILITY PER ACTIVE SLIDE ============ */
+    function updateButtonVisibility(){
+      const idx = getCurrentSlideIndex();
+
+      rendered.forEach((r, i) => {
+        const active = (i === idx);
+
+        r.slide.classList.toggle('is-visible', active);
+
+        const cta = r.ctaEl;
+        if (cta) {
+          if (active) {
+            cta.style.opacity = '1';
+            cta.style.pointerEvents = 'auto';
+          } else {
+            cta.style.opacity = '0';
+            cta.style.pointerEvents = 'none';
+          }
+        }
+
+        if (r.idxBtnEl){
+          const isLast = (i === slides.length - 1);
+          if (active && !isLast){
+            r.idxBtnEl.style.opacity = '1';
+            r.idxBtnEl.style.pointerEvents = 'auto';
+          } else {
+            r.idxBtnEl.style.opacity = '0';
+            r.idxBtnEl.style.pointerEvents = 'none';
+          }
+        }
+
+        if (r.contactBtnEl){
+          if (active){
+            r.contactBtnEl.style.opacity = '1';
+            r.contactBtnEl.style.pointerEvents = 'auto';
+          } else {
+            r.contactBtnEl.style.opacity = '0';
+            r.contactBtnEl.style.pointerEvents = 'none';
+          }
+        }
+
+        if (r.langEl){
+          if (active){
+            r.langEl.style.opacity = '1';
+            r.langEl.style.pointerEvents = 'auto';
+          } else {
+            r.langEl.style.opacity = '0';
+            r.langEl.style.pointerEvents = 'none';
+          }
+        }
+      });
+
+      updateContactButtonModes();
+      
+    }
+
+    /* ============ LANGUAGE APPLY/SETTER ============ */
+    function updateLangSwitchVisuals(){
+      rendered.forEach(r => {
+        if (!r.langEl) return;
+        r.langEl.querySelectorAll('.lang-option').forEach(btn => {
+          btn.classList.toggle('is-active', btn.textContent.toLowerCase() === currentLang);
+        });
+      });
+    }
+
+    function applyLanguageToSlides(){
+  rendered.forEach((r, idx) => {
+    const conf     = r.conf;
+    const langPack = conf.i18n?.[currentLang] || conf.i18n?.en || {};
+
+    // --- projectsOverview: update project cards from projectsMeta ---
+    if (conf.layout === 'projectsOverview' && r.projectsOverviewCards) {
+      Object.keys(r.projectsOverviewCards).forEach(projectId => {
+        const pm = projectsMeta.find(p => p.id === projectId);
+        if (!pm) return;
+
+        const projLang = pm.i18n?.[currentLang] || pm.i18n?.en || {};
+        const refs = r.projectsOverviewCards[projectId];
+
+        if (refs.titleEl)  refs.titleEl.textContent  = projLang.title  || '';
+        if (refs.domainEl) refs.domainEl.textContent = projLang.domain || '';
+        if (refs.typeEl)   refs.typeEl.textContent   = projLang.type   || '';
+        if (refs.yearEl)   refs.yearEl.textContent   = projLang.year   || '';
+      });
+    }
+
+
+        /// TEXT BLOCK SLIDES (including problem framing)
+    if (conf.layout === 'textBlock') {
+      if (r.introLabelEl) r.introLabelEl.textContent = langPack.label || '';
+      if (r.introBodyEl)  r.introBodyEl.textContent  = langPack.body  || '';
+    }
+
+    // Scroll hint (used on intro + problem framing)
+    if (r.scrollHintEl) {
+      r.scrollHintEl.textContent = uiStrings.scrollHint[currentLang];
+}
+
+
+
+    // media (for image slides)
+    if (conf.type === 'image' && r.mediaEl?.tagName === 'IMG') {
+      const src = langPack.src || conf.src;
+      if (src) r.mediaEl.src = src;
+    }
+
+
+
+  if (conf.layout === 'introAnimated') {
+  if (r.introMainEl) r.introMainEl.textContent = langPack.main || '';
+  if (r.introSubEl)  r.introSubEl.textContent  = langPack.sub  || '';
+}
+
+
+    
+
+// inside applyLanguageToSlides(), in the `if (conf.layout === 'resultsBlock') { ... }` part:
+if (conf.layout === 'resultsBlock') {
+  if (r.introLabelEl) {
+    r.introLabelEl.textContent = langPack.label || '';
+  }
+  if (r.resultsGridEl) {
+    r.resultsGridEl.innerHTML = '';
+    (langPack.items || []).forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'result-item';
+
+      const line = document.createElement('span');
+      line.className = 'result-line ' +
+        (item.status === 'success'
+          ? 'result-line-success'
+          : 'result-line-improve');
+      card.appendChild(line);
+
+      const p = document.createElement('p');
+      p.className = 'result-text';
+
+      const inner = document.createElement('span');
+      inner.className = 'result-text-inner';
+
+      const textSpan = document.createElement('span');
+      textSpan.textContent = item.text || '';
+
+      inner.appendChild(textSpan);
+      p.appendChild(inner);
+      card.appendChild(p);
+      r.resultsGridEl.appendChild(card);
+    });
+  }
+
+  // update nav button labels
+  if (r.resultsNavNextEl) {
+    r.resultsNavNextEl.textContent = uiStrings.resultsNextProject[currentLang];
+  }
+  if (r.resultsNavBackEl) {
+    r.resultsNavBackEl.textContent = uiStrings.resultsBackToSelection[currentLang];
+  }
+}
+
+
+
+      if (conf.layout === 'projectIntro') {
+  // title
+  if (r.introLabelEl) {
+    r.introLabelEl.textContent = langPack.title || '';
+  }
+
+  // body text
+  if (r.introBodyEl) {
+    r.introBodyEl.textContent = langPack.body || '';
+  }
+
+  // metadata row: rebuild "domain | type | date"
+  if (r.metaRowEl) {
+    r.metaRowEl.innerHTML = '';
+
+    function makeMetaItem(text) {
+      const span = document.createElement('span');
+      span.className = 'project-meta-item';
+      span.textContent = text;
+      return span;
+    }
+
+    function makeSep() {
+      const sep = document.createElement('span');
+      sep.className = 'project-meta-sep';
+      sep.textContent = '|';
+      return sep;
+    }
+
+    const domain = langPack.domain || '';
+    const type   = langPack.type   || '';
+    const date   = langPack.date   || '';
+
+    if (domain) r.metaRowEl.appendChild(makeMetaItem(domain));
+    if (type) {
+      if (domain) r.metaRowEl.appendChild(makeSep());
+      r.metaRowEl.appendChild(makeMetaItem(type));
+    }
+    if (date) {
+      if (domain || type) r.metaRowEl.appendChild(makeSep());
+      r.metaRowEl.appendChild(makeMetaItem(date));
+    }
+  }
+
+  // competences list
+  if (r.listEl) {
+    r.listEl.innerHTML = '';
+    (langPack.competences || []).forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item;
+      r.listEl.appendChild(li);
+    });
+  }
+}
+
+
+    // titles (for media-text slides)
+    const titleText = langPack.title || conf.title || '';
+    if (conf.showTitle && conf.layout === 'mediaText') {
+      if (r.titleEl) {
+        const parts  = titleText.split('\n');
+        const main   = parts.shift() || '';
+        const rest   = parts.join('\n');
+        const mainEl = r.titleEl.querySelector('.title-main');
+        const subEl  = r.titleEl.querySelector('.title-sub');
+        if (mainEl) mainEl.textContent = main;
+        if (rest.trim() !== '') {
+          if (subEl) subEl.textContent = rest;
+          else {
+            const newSub = document.createElement('span');
+            newSub.className = 'title-sub';
+            newSub.textContent = rest;
+            r.titleEl.appendChild(newSub);
+          }
+        } else if (subEl) {
+          subEl.remove();
+        }
+      } else if ((titleText || '').trim() !== '') {
+        const t = buildTitleNode(titleText);
+        r.slide.insertBefore(t, r.slide.firstChild);
+        r.titleEl = t;
+      }
+    }
+
+    // Contact page localized content
+    if (idx === slides.length - 1) {
+      if (r.contactBlockEl) r.contactBlockEl.textContent = uiStrings.contactBlock[currentLang];
+      if (r.cvLinkEl)       r.cvLinkEl.textContent       = uiStrings.cvDownload[currentLang];
+      if (r.cvLinkEl) {
+        r.cvLinkEl.onclick = () => window.open(cvPaths[currentLang] || cvPaths.en, '_blank');
+      }
+    }
+
+    // Top buttons labels
+    if (r.idxBtnEl) r.idxBtnEl.textContent = uiStrings.indexBtn[currentLang];
+
+    // CTA text (based on stored key)
+    if (r.ctaEl && r.ctaEl.dataset.ctaKey) {
+      r.ctaEl.textContent = uiStrings[r.ctaEl.dataset.ctaKey][currentLang];
+    }
+
+  
+
+      // solutions row: update titles and image src when language changes
+    if (conf.layout === 'solutionsRow' && r.solutionsItems) {
+      r.solutionsItems.forEach(ref => {
+        const itemConf = conf.solutions[ref.itemIndex];
+        const itemPack =
+          itemConf.i18n?.[currentLang] ||
+          itemConf.i18n?.en ||
+          {};
+
+        if (ref.titleEl) {
+          ref.titleEl.textContent = itemPack.title || itemConf.title || '';
+        }
+
+        if (ref.mediaEl && itemConf.type === 'image') {
+          const newSrc = itemPack.src || itemConf.src;
+          if (newSrc) {
+            ref.mediaEl.src = newSrc;
+          }
+        }
+        // for video, src usually same, but could be updated similarly if needed
+      });
+    }
+
+
+  });
+
+  // Index overlay text
+  indexTitleLabel.textContent = uiStrings.indexTitle[currentLang];
+  indexCloseHint.textContent  = uiStrings.indexCloseHint[currentLang];
+
+  updateLangSwitchVisuals();
+  buildIndexOverlayContents();
+  updateContactButtonModes();
+  updateButtonVisibility();
+  updateIndexHighlight();
+
+
+} // ← THIS was missing
+
+
+
+    function setLanguage(lang){
+      if (!supportedLangs.includes(lang)) return;
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      applyLanguageToSlides();
+
+      // Preload language-specific images
+      slides.forEach(s => {
+        const src = s.i18n?.[lang]?.src;
+        if (s.type === 'image' && src){
+          const img = new Image();
+          img.src = src;
+        }
+      });
+    }
+
+    /* ============ SCROLL/RESIZE/KEYS ============ */
+    let ticking = false;
+    function onScroll(){
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          updateButtonVisibility();
+          updateIndexHighlight();
+          ticking = false;
+        });
+      }
+    }
+
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+
+    window.addEventListener('resize', () => {
+      updateButtonVisibility();
+      updateIndexHighlight();
+    });
+
+    window.addEventListener('keydown', e => {
+      if (e.key !== 'PageDown' && e.key !== 'PageUp') return;
+      e.preventDefault();
+      const slidesEl = Array.from(document.querySelectorAll('.slide'));
+      const current  = document
+        .elementFromPoint(window.innerWidth/2, window.innerHeight/2)
+        ?.closest('.slide');
+      const i = slidesEl.indexOf(current);
+      if (i < 0) return;
+      const next = e.key === 'PageDown' ? slidesEl[i+1] : slidesEl[i-1];
+      if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+
+
+
+
+
+
+
+
+    // ===========================
+// Force-directed skills diagram (competences)
+// ===========================
+function buildSkillsForceDiagram(svgNode) {
+  const width  = window.innerWidth;
+  const height = window.innerHeight;
+
+  const svg = d3.select(svgNode)
+    .attr("viewBox", [0, 0, width, height])
+    .classed("skills-force-svg", true)
+    .style("background", "#fcfcfc");
+
+  const data = {
+    nodes: [
+      // MAIN NODES
+      {
+        id: "Digital Product & Interaction Design",
+        type: "main",
+        group: "digital",
+        label: "Digital Product &\nInteraction Design",
+        radius: 80
+      },
+      {
+        id: "Information & Visual Systems",
+        type: "main",
+        group: "information",
+        label: "Information &\nVisual Systems",
+        radius: 80
+      },
+      {
+        id: "Research & Technical Implementation",
+        type: "main",
+        group: "research",
+        label: "Research &\nTechnical Implementation",
+        radius: 80
+      },
+
+      // SUB – Digital
+      {
+        id: "UX/UI Design",
+        type: "sub",
+        group: "digital",
+        parent: "digital",
+        label: "UX/UI\nDesign",
+        radius: 50
+      },
+      {
+        id: "Interaction Design",
+        type: "sub",
+        group: "digital",
+        parent: "digital",
+        label: "Interaction\nDesign",
+        radius: 50
+      },
+      {
+        id: "User Flows & Task Modelling",
+        type: "sub",
+        group: "digital",
+        parent: "digital",
+        label: "User Flows &\nTask Modelling",
+        radius: 45
+      },
+      {
+        id: "Prototyping & Behaviours",
+        type: "sub",
+        group: "digital",
+        parent: "digital",
+        label: "Prototyping &\nBehaviours",
+        radius: 45
+      },
+      {
+        id: "Usability & Accessibility",
+        type: "sub",
+        group: "digital",
+        parent: "digital",
+        label: "Usability &\nAccessibility",
+        radius: 45
+      },
+
+      // SUB – Information
+      {
+        id: "Information Design",
+        type: "sub",
+        group: "information",
+        parent: "information",
+        label: "Information\nDesign",
+        radius: 45
+      },
+      {
+        id: "Data Visualization",
+        type: "sub",
+        group: "information",
+        parent: "information",
+        label: "Data\nVisualization",
+        radius: 45
+      },
+      {
+        id: "Diagramming & Infographics",
+        type: "sub",
+        group: "information",
+        parent: "information",
+        label: "Diagramming &\nInfographics",
+        radius: 45
+      },
+      {
+        id: "Visual Communication",
+        type: "sub",
+        group: "information",
+        parent: "information",
+        label: "Visual\nCommunication",
+        radius: 45
+      },
+
+      // SUB – Research & Technical Implementation
+      {
+        id: "Practice-based Research",
+        type: "sub",
+        group: "research",
+        parent: "research",
+        label: "Practice-based\nResearch",
+        radius: 45
+      },
+      {
+        id: "User Research",
+        type: "sub",
+        group: "research",
+        parent: "research",
+        label: "User\nResearch",
+        radius: 45
+      },
+      {
+        id: "Front-end Development (basics)",
+        type: "sub",
+        group: "research",
+        parent: "research",
+        label: "Front-end\nDevelopment\n(basics)",
+        radius: 45
+      }
+    ],
+    links: [
+      // connections between main nodes (triangle)
+      {
+        source: "Digital Product & Interaction Design",
+        target: "Information & Visual Systems",
+        group: "mains"
+      },
+      {
+        source: "Digital Product & Interaction Design",
+        target: "Research & Technical Implementation",
+        group: "mains"
+      },
+      {
+        source: "Information & Visual Systems",
+        target: "Research & Technical Implementation",
+        group: "mains"
+      },
+
+      // Digital
+      {
+        source: "Digital Product & Interaction Design",
+        target: "UX/UI Design",
+        group: "digital"
+      },
+      {
+        source: "Digital Product & Interaction Design",
+        target: "Interaction Design",
+        group: "digital"
+      },
+      {
+        source: "Digital Product & Interaction Design",
+        target: "User Flows & Task Modelling",
+        group: "digital"
+      },
+      {
+        source: "Digital Product & Interaction Design",
+        target: "Prototyping & Behaviours",
+        group: "digital"
+      },
+      {
+        source: "Digital Product & Interaction Design",
+        target: "Usability & Accessibility",
+        group: "digital"
+      },
+
+      // Information
+      {
+        source: "Information & Visual Systems",
+        target: "Information Design",
+        group: "information"
+      },
+      {
+        source: "Information & Visual Systems",
+        target: "Data Visualization",
+        group: "information"
+      },
+      {
+        source: "Information & Visual Systems",
+        target: "Diagramming & Infographics",
+        group: "information"
+      },
+      {
+        source: "Information & Visual Systems",
+        target: "Visual Communication",
+        group: "information"
+      },
+
+      // Research
+      {
+        source: "Research & Technical Implementation",
+        target: "Practice-based Research",
+        group: "research"
+      },
+      {
+        source: "Research & Technical Implementation",
+        target: "User Research",
+        group: "research"
+      },
+      {
+        source: "Research & Technical Implementation",
+        target: "Front-end Development (basics)",
+        group: "research"
+      }
+    ]
+  };
+
+  const nodes = data.nodes.map(d => ({ ...d }));
+  const links = data.links.map(d => ({ ...d }));
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  const simulation = d3.forceSimulation(nodes)
+    .force("link", d3.forceLink(links).id(d => d.id).distance(160))
+    .force("charge", d3.forceManyBody().strength(-300))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("collision", d3.forceCollide().radius(d => d.radius + 10))
+    .on("tick", ticked);
+
+  const link = svg.append("g")
+    .attr("stroke-linecap", "round")
+    .selectAll("line")
+    .data(links)
+    .join("line")
+      .attr("class", "skills-force-link");
+
+  const node = svg.append("g")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+      .attr("class", d => "skills-force-node " + d.type);
+
+  node.append("circle")
+    .attr("r", d => d.radius)
+    .attr("fill", d => d.type === "main" ? "#000000" : "#777777");
+
+  // Multiline labels, vertically centered
+  // Multiline labels via <tspan>
+  node.append("text")
+    .selectAll("tspan")
+    .data(d => d.label.split("\n"))
+    .join("tspan")
+      .attr("x", 0)
+      .attr("dy", (d, i) => (i === 0 ? "-0.3em" : "1.1em"))
+      .text(d => d);
+
+  // dragging
+  node.call(
+    d3.drag()
+      .on("start", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x;
+        d.fy = d.y;
+      })
+      .on("drag", (event, d) => {
+        const r = d.radius || 40;
+        d.fx = clamp(event.x, r, width - r);
+        d.fy = clamp(event.y, r, height - r);
+      })
+      .on("end", (event, d) => {
+        if (!event.active) simulation.alphaTarget(0);
+        d.fx = null;
+        d.fy = null;
+      })
+  );
+
+  // click highlighting
+  let activeGroup = null;
+
+  node
+    .filter(d => d.type === "main")
+    .style("cursor", "pointer")
+    .on("click", (event, d) => {
+      if (activeGroup === d.group) {
+        activeGroup = null;
+        resetStyles();
+      } else {
+        activeGroup = d.group;
+        applyActiveStyles();
+      }
+    });
+
+  function resetStyles() {
+    node.select("circle")
+      .attr("fill", d => (d.type === "main" ? "#000000" : "#777777"))
+      .attr("opacity", 1);
+
+    node.select("text")
+      .attr("fill", "#ffffff")
+      .attr("opacity", 1);
+
+    link
+      .attr("stroke", "#000000")
+      .attr("stroke-opacity", 1);
+  }
+
+  function applyActiveStyles() {
+    node.select("circle")
+      .attr("fill", d => {
+        if (!activeGroup) return d.type === "main" ? "#000000" : "#777777";
+        if (d.type === "main") {
+          return d.group === activeGroup ? "#000000" : "#dddddd";
+        }
+        if (d.type === "sub") {
+          return d.parent === activeGroup ? "#777777" : "#dddddd";
+        }
+      })
+      .attr("opacity", d => {
+        if (!activeGroup) return 1;
+        if (d.type === "main") return d.group === activeGroup ? 1 : 0.4;
+        if (d.type === "sub")  return d.parent === activeGroup ? 1 : 0.25;
+      });
+
+    node.select("text")
+      .attr("fill", d => {
+        if (!activeGroup) return "#ffffff";
+        if (d.type === "main") {
+          return d.group === activeGroup ? "#ffffff" : "#f5f5f5";
+        }
+        if (d.type === "sub") {
+          return d.parent === activeGroup ? "#ffffff" : "#f5f5f5";
+        }
+      })
+      .attr("opacity", d => {
+        if (!activeGroup) return 1;
+        if (d.type === "main") return d.group === activeGroup ? 1 : 0.5;
+        if (d.type === "sub")  return d.parent === activeGroup ? 1 : 0.3;
+      });
+
+    link
+      .attr("stroke", l => {
+        if (!activeGroup)      return "#000000";
+        if (l.group === activeGroup) return "#000000";
+        if (l.group === "mains")     return "#dddddd";
+        return "#dddddd";
+      })
+      .attr("stroke-opacity", l => {
+        if (!activeGroup)         return 1;
+        if (l.group === activeGroup) return 1;
+        if (l.group === "mains")     return 0;
+        return 0;
+      });
+  }
+
+  function ticked() {
+    nodes.forEach(d => {
+      const r = d.radius || 40;
+      d.x = clamp(d.x, r, width - r);
+      d.y = clamp(d.y, r, height - r);
+    });
+
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
+
+    node
+      .attr("transform", d => `translate(${d.x},${d.y})`);
+  }
+}
+
+
+
+
+
+    /* ============ INITIALIZE ============ */
+    // Preload images
+    slides.forEach(s => {
+      if (s.type === 'image') {
+        const preload = s.i18n?.[currentLang]?.src || s.src;
+        if (preload) {
+          const i = new Image();
+          i.src = preload;
+        }
+      }
+    });
+
+
+
+    updateButtonVisibility();
+    updateIndexHighlight();
+    applyLanguageToSlides();    // also triggers intro typing if on slide 0
+  </script>
+</body>
+</html>
