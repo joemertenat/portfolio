@@ -1902,31 +1902,27 @@
 
 
 
-/* ===== TABLET – HORIZONTAL (LANDSCAPE) TUNING ===== */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+/* ===== TABLET – HORIZONTAL (LANDSCAPE) ===== */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
 
-  /* 1) INTRO SLIDE – smaller content, more bottom space */
+  /* INTRO smaller */
   .slide.intro-slide {
-    padding: 20vh 10vw 10vh;  /* was 25vh 12vw 0 –> more space at bottom, a bit less top */
+    padding: 20vh 10vw 10vh;
   }
 
-  
-/* inside your tablet landscape @media */
-.intro-main {
-  margin: 0 0 1.1rem 0;
-  font-weight: 200;
-  font-size: clamp(30px, 3vw, 34px);  /* clearly smaller */
-  line-height: 1.3;
-  white-space: pre-wrap;
-  background: #000000;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-
+  .intro-main {
+    margin: 0 0 1.1rem 0;
+    font-weight: 400;
+    font-size: clamp(30px, 3vw, 34px);  /* clearly smaller than desktop */
+    line-height: 1.3;
+    white-space: pre-wrap;
+    background: #000000;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
 
   .intro-sub {
-    font-size: clamp(24px, 2.4vw, 30px);  /* smaller subtitle */
+    font-size: clamp(20px, 2.2vw, 26px);
   }
 
   .intro-slide .contact-avatar {
@@ -1942,17 +1938,16 @@
     font-size: 12px;
   }
 
-
-  /* 2) COMPETENCES / SKILLS RADAR – smaller diagram */
+  /* COMPETENCES diagram smaller */
   .slide.skills-slide {
-    padding: 0 6vw;  /* a bit tighter than desktop (8vw) */
+    padding: 0 6vw;
   }
 
   .skills-inner {
     max-width: 70vw;
     width: 70vw;
-    height: auto;        /* aspect-ratio keeps it square */
-    max-height: 75vh;    /* avoid taking the whole screen */
+    height: auto;
+    max-height: 75vh;
   }
 }
 
