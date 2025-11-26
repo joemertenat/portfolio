@@ -9,6 +9,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
+
+<div id="mobile-soon">
+  <div class="mobile-message">
+    <h2>Available soon on mobile</h2>
+    <p>Please visit this website on a desktop device for the full experience.</p>
+  </div>
+</div>
+
+
+
   <style>
     :root{
       --bg: #0f1012;
@@ -1432,6 +1442,257 @@
 }
 
 
+
+
+
+
+
+
+/* ==== MOBILE GLOBAL LAYOUT ==== */
+@media (max-width: 768px) {
+
+  /* Let slides grow a bit instead of hard-locking to viewport */
+  .scroller {
+    height: 100vh;
+    scroll-snap-type: y proximity;  /* softer snap on mobile */
+  }
+
+  .slide {
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+
+  /* Intro text: less side padding, less top offset */
+  .slide.intro-slide {
+    padding: 18vh 6vw 6vh;
+  }
+
+  .intro-inner {
+    max-width: 100%;
+  }
+
+  /* Generic text slides */
+  .slide.text-block-slide,
+  .slide.results-slide,
+  .slide.skills-slide,
+  .slide.contact-slide {
+    padding: 6vh 6vw;
+    align-items: flex-start;
+  }
+
+  .text-block-inner,
+  .results-inner {
+    max-width: 100%;
+  }
+
+  /* Radar slide: don’t force 130vh */
+  .skills-inner {
+    height: 90vh;
+  }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  /* 1. INTRO / MAIN PAGE */
+  .slide.intro-slide {
+    align-items: center;            /* center vertically */
+    padding: 16vh 6vw 8vh;         /* less top padding, smaller side padding */
+  }
+
+  .intro-main {
+    font-size: clamp(18px, 7vw, 18px);
+    line-height: 0.8;
+  }
+
+  .intro-sub {
+    font-size: clamp(18px, 5vw, 18px);
+    line-height: 1.5;
+  }
+}
+
+
+@media (max-width: 768px) {
+  /* 2. COMPETENCES / SKILLS RADAR */
+  .slide.skills-slide {
+    padding: 0 4vw;
+  }
+
+  .skills-inner {
+    height: 80vh;        /* smaller than the current 130vh */
+    max-width: 90vw;
+  }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  /* 3. PROJECT OVERVIEW – STACKED CARDS */
+  .projects-overview-inner {
+    max-height: none;
+    padding: 4vh 4vw;
+  }
+
+  .projects-grid {
+    flex-wrap: wrap;
+    gap: 3vh;
+  }
+
+  .project-card {
+    flex: 1 1 100%;
+    min-height: auto;
+    padding: 2rem 1.4rem 1.8rem;
+  }
+
+  .project-card-thumb {
+    position: static;         /* below text */
+    margin-top: 1.4rem;
+    max-height: 40vh;
+  }
+
+  .project-card-thumb img {
+    height: auto;
+  }
+}
+
+
+
+@media (max-width: 768px) {
+  /* 4. PROBLEM FRAMING (TEXT BLOCK SLIDES) */
+  .slide.text-block-slide {
+    align-items: flex-start;
+    padding: 10vh 6vw 8vh;
+  }
+
+  .text-block-label {
+    font-size: 14px;
+  }
+
+  .text-block-main {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+}
+
+
+
+
+@media (max-width: 768px) {
+  /* 5. SOLUTION SLIDE – TALLER CARDS, HORIZONTAL SCROLL */
+  .solutions-track {
+    padding: 3vh 4vw 2vh;
+  }
+
+  .solution-item {
+    min-width: 110vw;   /* extends beyond the visible width */
+    height: 80vh;       /* higher than the current mobile height */
+  }
+
+  .solution-title {
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+@media (max-width: 768px) {
+  /* 6. RESULTS PAGE */
+  .results-inner {
+    padding: 0 2vw;
+  }
+
+  .results-label {
+    font-size: 14px;
+  }
+
+  .result-text {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .results-nav-btn {
+    font-size: 14px;
+    padding: 0.7rem 1.8rem;
+    min-width: 220px;       /* makes the button visually longer */
+    text-align: center;
+  }
+}
+
+
+
+
+@media (max-width: 600px) {
+  .scroll-hint {
+    display: none;
+  }
+
+  .contact-card {
+    border-radius: 16px;
+    padding: 2rem 1.4rem 2.2rem;
+  }
+
+  .contact-name {
+    font-size: 20px;
+  }
+
+  .contact-title,
+  .contact-block {
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+/* MOBILE — show "Available soon" message */
+#mobile-soon {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  body > *:not(#mobile-soon) {
+    display: none !important;   /* Hide all normal content */
+  }
+
+  #mobile-soon {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    background: #111;
+    color: white;
+    z-index: 99999;
+
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5vw;
+  }
+
+  #mobile-soon .mobile-message h2 {
+    font-size: 28px;
+    margin-bottom: 1rem;
+  }
+
+  #mobile-soon .mobile-message p {
+    font-size: 16px;
+    opacity: 0.8;
+    line-height: 1.4;
+  }
+}
+
+
+
+
+
+
     @media (hover: none), (pointer: coarse) {
       .cursor { display: none !important; }
     }
@@ -1523,7 +1784,7 @@
 
 
 
-         const projectsMeta = [
+       const projectsMeta = [
       {
         id: 'p1',
         i18n: {
