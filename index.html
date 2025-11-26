@@ -1781,14 +1781,15 @@
   }
 
   .project-intro-title {
-    font-size: clamp(32px, 3vw, 40px);  /* smaller than laptop */
-    line-height: 1.2;
+    font-size: clamp(30px, 2.8vw, 36px);
+    height: 65vh;
+
   }
 
 
   /* 2) SOLUTIONS (project in solution area) – slightly smaller block */
   .solution-item {
-    height: 70vh;                 /* was 85vh */
+    height: 60vh;                 /* was 85vh */
   }
 
   .solution-stage {
@@ -1807,6 +1808,21 @@
   .result-item {
     max-width: none;              /* full width */
     flex: 1 1 auto;
+  }
+}
+
+
+/* ==== PROJECT OVERVIEW – TABLET PORTRAIT ==== */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+
+  .slide.projects-overview .projects-overview-inner {
+    max-height: none;          /* allow the section to grow/scroll */
+    padding: 5vh 4vw;          /* a bit tighter than desktop */
+  }
+
+  .slide.projects-overview .project-card {
+    min-height: 50vh;          /* ↓ shorter boxes on tablet */
+    padding: 2.2rem 1.6rem 1.8rem;  /* optional: a bit less padding */
   }
 }
 
