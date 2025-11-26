@@ -20,6 +20,8 @@
 
 
 
+
+
   <style>
     :root{
       --bg: #0f1012;
@@ -1721,7 +1723,7 @@
     border-radius: 999px;
     font-size: 11px;
     letter-spacing: .08em;
-    text-transform: uppercase;
+    
     background: #f3f3f3;
     color: #555;
     margin-bottom: 1rem;
@@ -1768,63 +1770,136 @@
 
 
 
-/* ==== TABLET – PORTRAIT LAYOUT (iPad-style) ==== */
+/* Base: tablet rotate overlay hidden by default */
+#tablet-rotate {
+  display: none;
+}
+
+/* Simple animation for the little rotate icon */
+@keyframes tabletRotatePulse {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+  50%  { transform: translateY(-4px) rotate(12deg); opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 0.7; }
+}
+
+/* ===== TABLET PORTRAIT: show rotate message, hide main UI ===== */
 @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
-
-  /* 1) PROJECT INTRO – smaller main title + wider text measure */
-  .slide.project-intro {
-    padding: 26vh 8vw 0;          /* less top + side padding than desktop */
+  /* Hide everything except the rotate overlay */
+  body > *:not(#tablet-rotate) {
+    display: none !important;
   }
 
-  .project-intro-inner {
-    max-width: 90vw;              /* allow the text to take more width */
+  #tablet-rotate {
+    display: flex !important;
+    position: fixed;
+    inset: 0;
+    background: #fcfcfc;
+    color: #111111;
+    z-index: 99999;
+
+    align-items: center;
+    justify-content: center;
+    padding: 10vw 8vw;
+    text-align: center;
   }
 
-  .project-intro-title {
-    font-size: clamp(30px, 2.8vw, 36px);
-    height: 65vh;
-
+  #tablet-rotate .tablet-card {
+    max-width: 480px;
+    width: 100%;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 2.4rem 2rem 2.1rem;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.10);
   }
 
-
-  /* 2) SOLUTIONS (project in solution area) – slightly smaller block */
-  .solution-item {
-    height: 60vh;                 /* was 85vh */
+  #tablet-rotate .tablet-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: #f3f3f3;
+    color: #555555;
+    margin-bottom: 1rem;
   }
 
-  .solution-stage {
-    /* optional: a bit less tall feeling on tablet */
+  #tablet-rotate h2 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 0.75rem 0;
+    color: #111111;
+  }
+
+  #tablet-rotate p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+    color: #444444;
+  }
+
+  #tablet-rotate .tablet-rotate-icon {
+    margin-top: 1.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    animation: tabletRotatePulse 2.4s ease-in-out infinite;
+  }
+
+  #tablet-rotate .tablet-rect {
+    width: 38px;
+    height: 26px;
     border-radius: 8px;
+    border: 1.5px solid #111111;
+    position: relative;
   }
 
-
-  /* 3) RESULTS – stack items vertically in portrait tablet */
-  .results-grid {
-    display: flex;
-    flex-direction: column;       /* one on top of the other */
-    gap: 1.6rem;
-  }
-
-  .result-item {
-    max-width: none;              /* full width */
-    flex: 1 1 auto;
+  #tablet-rotate .tablet-arrow {
+    font-size: 18px;
+    line-height: 1;
+    color: #111111;
   }
 }
 
 
-/* ==== PROJECT OVERVIEW – TABLET PORTRAIT ==== */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
 
-  .slide.projects-overview .projects-overview-inner {
-    max-height: none;          /* allow the section to grow/scroll */
-    padding: 5vh 4vw;          /* a bit tighter than desktop */
+/* ===== TABLET LANDSCAPE: smaller intro/contact area + competences diagram ===== */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+
+  /* 1) Intro slide: text + contact block more compact, more bottom space */
+  .intro-slide {
+    padding: 16vh 10vw 10vh;    /* was 25vh top / 0 bottom → now less tall */
   }
 
-  .slide.projects-overview .project-card {
-    min-height: 65vh;          /* ↓ shorter boxes on tablet */
-    padding: 2.2rem 1.6rem 1.8rem;  /* optional: a bit less padding */
+  .intro-slide .contact-avatar {
+    width: 60px;
+    height: 60px;
+  }
+
+  .intro-slide .contact-name {
+    font-size: 20px;
+  }
+
+  .intro-slide .contact-title {
+    font-size: 13px;
+  }
+
+  /* 2) Competence diagram (skills slide): smaller */
+  .skills-slide {
+    padding: 0 6vw;
+  }
+
+  .skills-inner {
+    max-width: 70vw;
+    width: 70vw;
+    height: auto;        /* let the aspect-ratio define height */
+    max-height: 80vh;    /* don’t exceed viewport too much */
   }
 }
+
 
 
 
@@ -1846,6 +1921,8 @@
 <body>
 
 
+
+
   <body>
   <div id="mobile-soon">
     <div class="mobile-card">
@@ -1860,6 +1937,27 @@
       </div>
     </div>
   </div>
+
+
+  <body>
+  <!-- Tablet portrait overlay -->
+  <div id="tablet-rotate">
+    <div class="tablet-card">
+      <div class="tablet-pill">Best viewed in landscape</div>
+      <h2>Rotate your tablet</h2>
+      <p>
+        This portfolio is optimised for horizontal viewing.<br>
+        Please turn your tablet to landscape to explore the projects.
+      </p>
+
+      <div class="tablet-rotate-icon">
+        <div class="tablet-rect"></div>
+        <span class="tablet-arrow">↻</span>
+      </div>
+    </div>
+  </div>
+
+  
 
   <div class="hud">Scroll / PgUp / PgDn — snap between sections</div>
   <!-- ...rest of your body content stays exactly as it is -->
