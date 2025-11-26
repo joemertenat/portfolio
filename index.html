@@ -1768,6 +1768,51 @@
 
 
 
+/* ==== TABLET – PORTRAIT LAYOUT (iPad-style) ==== */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+
+  /* 1) PROJECT INTRO – smaller main title + wider text measure */
+  .slide.project-intro {
+    padding: 26vh 8vw 0;          /* less top + side padding than desktop */
+  }
+
+  .project-intro-inner {
+    max-width: 90vw;              /* allow the text to take more width */
+  }
+
+  .project-intro-title {
+    font-size: clamp(32px, 3vw, 40px);  /* smaller than laptop */
+    line-height: 1.2;
+  }
+
+
+  /* 2) SOLUTIONS (project in solution area) – slightly smaller block */
+  .solution-item {
+    height: 70vh;                 /* was 85vh */
+  }
+
+  .solution-stage {
+    /* optional: a bit less tall feeling on tablet */
+    border-radius: 8px;
+  }
+
+
+  /* 3) RESULTS – stack items vertically in portrait tablet */
+  .results-grid {
+    display: flex;
+    flex-direction: column;       /* one on top of the other */
+    gap: 1.6rem;
+  }
+
+  .result-item {
+    max-width: none;              /* full width */
+    flex: 1 1 auto;
+  }
+}
+
+
+
+
 
 
     @media (hover: none), (pointer: coarse) {
@@ -1791,7 +1836,7 @@
       <div class="mobile-pill">Welcome!</div>
       <h2>Not yet available on mobile</h2>
       <p>
-        This portfolio is designed for large screens. Please visit again from a laptop or desktop to explore the full case studies.
+        This portfolio is designed for large screens.Please visit again from a laptop or desktop to explore the full case studies.
       </p>
 
       <div class="mobile-dots">
