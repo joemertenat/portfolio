@@ -8,21 +8,12 @@
   <!-- Roboto -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-
-
-<div id="mobile-soon">
-  <div class="mobile-message">
-    <h2>Available soon on mobile</h2>
-    <p>Please visit this website on a desktop device for the full experience.</p>
-  </div>
-</div>
-
-
-
-
-
+  
 
   <style>
+
+
+
     :root{
       --bg: #0f1012;
       --ink: #0a0a0a;
@@ -170,14 +161,15 @@
       white-space: pre-line;
     }
 
-    /* --- INTRO ANIMATED SLIDE --- */
-    .slide.intro-slide {
-        background:#fcfcfc;
-        display: flex;
-        align-items: flex-start;        /* ⬅ text anchored to top, no vertical drifting */
-        justify-content: center;
-        padding: 25vh 12vw 0;            /* top offset so text sits nicely */
-      }
+  /* --- INTRO ANIMATED SLIDE --- */
+.slide.intro-slide {
+  background:#fcfcfc;
+  display: flex;
+  align-items: center;          /* ⬅ vertically centered */
+  justify-content: center;
+  padding: 0 12vw;              /* no top offset, full centering */
+}
+
 
       .intro-inner {
         max-width: 1280px;
@@ -390,7 +382,6 @@
   color: #000;
 }
 
-
 .solution-stage {
   flex: 1;
   width: 100%;
@@ -400,14 +391,16 @@
   border-radius: 0;
   overflow: hidden;
 
+  position: relative;       /* ⬅ NEW: for the video timeline overlay */
+
   display: flex;
-  align-items: center;      /* ⬅ center vertically */
-  justify-content: center;  /* ⬅ center horizontally */
-
-  padding: 0;               /* ⬅ remove offset */
-
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   padding-top: 0vh;
 }
+
+
 
 
 
@@ -434,7 +427,91 @@
 
 
 
+
+/* Row that contains [timeline] + [buttons] */
+.solution-video-bar {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: 14px;          /* vertical position of both bar + buttons */
+  display: flex;
+  align-items: center;   /* SAME vertical height */
+}
+
+/* Timeline itself */
+.solution-video-progress {
+  flex: 1;               /* stretch to fill available space */
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.12);
+  position: relative;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+/* Buttons container: sits to the RIGHT of the bar */
+.solution-video-controls {
+  display: flex;
+  gap: 6px;
+  margin-left: 5px;      /* ← EXACTLY 5px to the right of the line */
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Fill + handle (unchanged, but for completeness) */
+.solution-video-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: #111;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.15s linear;
+}
+
+.solution-video-progress-handle {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #111;
+  transform: translate(-50%, -50%);
+  transition: left 0.15s linear, transform 0.15s ease-out;
+}
+
+.solution-video-btn {
+  width: 14px;
+  height: 14px;
+  background: none;              /* heller Kreis */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 8px;
+  line-height: 1;
+  color: #000;                   /* ICON JETZT SCHWARZ */
+  cursor: none;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+
+.solution-video-btn:hover {
+  opacity: 1;
+}
+
+
+
+
+
+
+
+
 /* --- SKILLS RADAR SLIDE --- */
+/* --- SKILLS / COMPETENCES PAGE --- */
 .slide.skills-slide {
   background: #fcfcfc;
   display: flex;
@@ -444,17 +521,78 @@
 }
 
 .skills-inner {
-  position: relative;
-  max-width: 100vw;
-  width: 100vw;
-  height: 130vh;
-  aspect-ratio: 1 / 1;   /* square area for the radar */
+  max-width: 1180px;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6vw;
 }
 
-.skills-radar {
+/* LEFT COLUMN: text */
+.skills-text {
+  flex: 0 0 40%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skills-text-inner {
+  max-width: 50rem;
+  text-align: left;
+}
+
+/* same style as intro text, slightly smaller */
+.skills-text-main {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(16px, 2.2vw, 16px);
+  line-height: 1.5;
+  white-space: pre-wrap;
+
+  background: #000000;
+  -webkit-background-clip: text;
+  color: transparent;
+
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity .6s ease-out .2s,
+    transform .6s ease-out .2s;
+}
+
+.skills-slide.is-visible .skills-text-main {
+  opacity: 1;
+  transform: none;
+}
+
+.skills-diagram {
+  flex: 0 0 48%;        /* ↓ pulls the diagram LEFT */
+  margin-right: 5vw;    /* ↓ adds breathing room from right edge */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.skills-diagram-inner {
+  width: min(100vh, 100vw);
+  aspect-ratio: 1 / 1;
+}
+
+/* --- SKILLS FORCE DIAGRAM (competences page) --- */
+.skills-force-svg {
   width: 100%;
   height: 100%;
+  touch-action: none;
+  display: block;
+
+  /* NEW: move the whole diagram slightly to the left */
+  transform: translateX(-10%);
 }
+
+
 
 /* grid: empty circle + rings + axes (always visible) */
 .radar-grid-circle {
@@ -464,13 +602,13 @@
 }
 
 .radar-axis-line {
-  stroke: #000000;
+  stroke: #fcfcfc;
   stroke-width: 0.5;
 }
 
 /* filled area representing competences (appears on scroll) */
 .radar-area {
-  fill: #000000;
+  fill: #fcfcfc;
   opacity: 0;
   transform-box: fill-box;
   transform-origin: 50% 50%;
@@ -480,19 +618,45 @@
     transform .6s ease-out .15s;
 }
 
+
+
 /* labels around the circle (title + short description) */
 .skills-label {
   font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 11px;
+  font-size: 15px;
   text-anchor: middle;
   fill: #000;
   opacity: 0;
   transition: opacity .5s ease-out .35s;
 }
 
+
+
+
+.node-main {
+  fill: #fcfcfc;   /* Hauptknoten */
+  stroke: #000;    /* Rahmen falls gewünscht */
+}
+
+.node-sub {
+  fill: #cccccc;   /* Unterknoten */
+  stroke: #333;    /* etwas dunklerer Rand */
+}
+
+
+
+.skills-force-node text {
+  fill: #000000;
+  font-family: "Roboto", sans-serif;
+  pointer-events: none;
+  font-size: 15px;
+  text-anchor: middle;
+}
+
+
 .skills-label-sub {
   font-size: 9px;
-  fill: #555;
+  fill: #fcfcfc;
 }
 
 /* when slide is active: show area + labels */
@@ -666,7 +830,7 @@
 /* --- TITLE --- */
 .project-intro-title {
   font-weight: 500;
-  font-size: clamp(42px, 3.6vw, 56px);
+  font-size: clamp(20px, 3.6vw, 20px);
   line-height: 1.15;
   white-space: pre-wrap;
 
@@ -695,7 +859,7 @@
 
 .project-meta-item,
 .project-meta-sep {
-  font-size: 24px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.05;
 
@@ -744,26 +908,35 @@
   background: #fcfcfc;              /* light grey page */
 }
 
-/* MAIN CONTAINER */
 .projects-overview-inner {
-  max-width: 94vw;
-  max-height: 88vh;
+  max-width: 100vw;
+  max-height: 100vh;
   margin: 0 auto;
   padding: 6vh 3vw;
+
+  /* NEW: horizontal scrolling when there are many cards */
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;        /* Firefox */
 }
 
-/* FOUR CARDS IN ONE ROW */
 .projects-grid {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-between;
-  gap: 2vw;
+  justify-content: flex-start;  /* ← important change */
+  gap: 1vw;
 }
+
+.projects-grid::after {
+  content: '';
+  flex: 0 0 0.5vw;   /* ← this is your right-side margin */
+}
+
 
 .project-card {
   flex: 0 0 calc(25% - 2vw);
   min-width: 0;
-  min-height: 65vh;
+  min-height: 75vh;
   position: relative;     /* needed for total control if you later go absolute */
   padding: 3vh 2vw;  
   overflow: hidden;  
@@ -789,7 +962,7 @@
 
 /* TITLE */
 .project-card-title {
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.3;
   font-weight: 500;
   color: #1a1a1a;
@@ -810,6 +983,7 @@
   opacity: 0.75;
 }
 
+
 /* IMAGE CONTAINER TOUCHES LEFT, RIGHT, AND BOTTOM */
 .project-card-thumb {
   position: absolute; 
@@ -828,12 +1002,22 @@
   overflow: hidden;
 }
 
+
+.project-card-description {
+  margin-top: 0.8rem;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(0, 0, 0, 0.6);
+}
+
 /* IMAGE */
 .project-card-thumb img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
+
+
 
 
 
@@ -969,7 +1153,8 @@
     /* CTA / HUD BUTTONS BASE STYLE */
     .cta-btn,
     .index-btn,
-    .contact-btn {
+    .contact-btn,
+    .competences-btn {
       appearance: none;
       -webkit-appearance: none;
 
@@ -1005,7 +1190,8 @@
 
     /* Base index/contact button look (position handled by top bar) */
     .index-btn,
-    .contact-btn {
+    .contact-btn,
+    .competences-btn {
       min-width: auto;
       padding: .5rem .8rem;
       font-size: 13px;
@@ -1014,6 +1200,15 @@
       color: var(--indexBtnText);
       box-shadow: 0 6px 20px rgba(0,0,0,.15);
     }
+
+
+    .competences-btn.is-current {
+      background: #fcfcfc !important;  /* leicht grau */
+      color: #e3e3e3 !important;
+      border-color: #e3e3e3 !important;
+      box-shadow: none !important;
+    }
+
 
     /* --- TOP BAR WRAPPER FOR INDEX / CONTACT / LANG --- */
     .slide-topbar {
@@ -1032,7 +1227,8 @@
     }
 
     .slide-topbar .index-btn,
-    .slide-topbar .contact-btn {
+    .slide-topbar .contact-btn,
+    .slide-topbar .competences-btn{
       position: static !important;
       top: auto !important;
       right: auto !important;
@@ -1091,7 +1287,10 @@
     .index-btn:hover,
     .index-btn:focus-visible,
     .contact-btn:hover,
-    .contact-btn:focus-visible {
+    .contact-btn:focus-visible,
+    .competences-btn:hover,
+    .competences-btn:focus-visible {
+
       outline: none;
       background: var(--indexBtnBgHover);
       color: var(--indexBtnTextHover);
@@ -1866,54 +2065,24 @@
 
 
 
-/* ===== TABLET LANDSCAPE: smaller intro/contact area + competences diagram ===== */
-@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
 
-  /* 1) Intro slide: text + contact block more compact, more bottom space */
-  .intro-slide {
-    padding: 16vh 10vw 10vh;    /* was 25vh top / 0 bottom → now less tall */
-  }
-
-  .intro-slide .contact-avatar {
-    width: 60px;
-    height: 60px;
-  }
-
-  .intro-slide .contact-name {
-    font-size: 20px;
-  }
-
-  .intro-slide .contact-title {
-    font-size: 13px;
-  }
-
-  /* 2) Competence diagram (skills slide): smaller */
-  .skills-slide {
-    padding: 0 6vw;
-  }
-
-  .skills-inner {
-    max-width: 70vw;
-    width: 70vw;
-    height: auto;        /* let the aspect-ratio define height */
-    max-height: 80vh;    /* don’t exceed viewport too much */
-  }
-}
-
-
-
-/* ===== TABLET – HORIZONTAL (LANDSCAPE) ===== */
+/* ===== TABLET – HORIZONTAL (LANDSCAPE) ONLY ===== */
 @media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
 
-  /* INTRO smaller */
-  .slide.intro-slide {
-    padding: 20vh 10vw 10vh;
-  }
+  /* --- INTRO ANIMATED SLIDE --- */
+.slide.intro-slide {
+  background:#fcfcfc;
+  display: flex;
+  align-items: center;          /* ⬅ vertically centered */
+  justify-content: center;
+  padding: 0 12vw;              /* no top offset, full centering */
+}
+
 
   .intro-main {
     margin: 0 0 1.1rem 0;
     font-weight: 400;
-    font-size: clamp(30px, 3vw, 34px);  /* clearly smaller than desktop */
+    font-size: clamp(30px, 3vw, 34px);  /* clearly smaller than base (46→44px) */
     line-height: 1.3;
     white-space: pre-wrap;
     background: #000000;
@@ -1938,19 +2107,20 @@
     font-size: 12px;
   }
 
-  /* COMPETENCES diagram smaller */
+  /* COMPETENCES / SKILLS smaller */
   .slide.skills-slide {
     padding: 0 6vw;
   }
 
   .skills-inner {
-    max-width: 70vw;
-    width: 70vw;
-    height: auto;
-    max-height: 75vh;
-  }
+  position: relative;
+  height: 80vh;                      /* always 80% of viewport height */
+  aspect-ratio: 1 / 1;               /* keep it square */
+  width: min(150vh, 150vw);            /* don’t overflow horizontally */
+  max-width: 150vh;
 }
 
+}
 
 
 
@@ -1962,24 +2132,16 @@
 
 
   </style>
+
 </head>
-
-
-
-
-
 <body>
-
-
-
-
-  <body>
+  <!-- MOBILE OVERLAY -->
   <div id="mobile-soon">
     <div class="mobile-card">
       <div class="mobile-pill">Welcome!</div>
       <h2>Not yet available on mobile</h2>
       <p>
-        This portfolio is designed for large screens.Please visit again from a laptop or desktop to explore the full case studies.
+        This portfolio is designed for large screens. Please visit again from a laptop or desktop to explore the full case studies.
       </p>
 
       <div class="mobile-dots">
@@ -1988,9 +2150,7 @@
     </div>
   </div>
 
-
-  <body>
-  <!-- Tablet portrait overlay -->
+  <!-- TABLET PORTRAIT OVERLAY -->
   <div id="tablet-rotate">
     <div class="tablet-card">
       <div class="tablet-pill">Best viewed in landscape</div>
@@ -2007,13 +2167,7 @@
     </div>
   </div>
 
-  
-
-  <div class="hud">Scroll / PgUp / PgDn — snap between sections</div>
-  <!-- ...rest of your body content stays exactly as it is -->
-
-
-
+  <!-- HUD hint -->
   <div class="hud">Scroll / PgUp / PgDn — snap between sections</div>
 
   <!-- custom cursor -->
@@ -2073,6 +2227,7 @@
       discover2:  { en:'Discover the case study', de:'Case Study entdecken', fr:'Découvrir le cas d’étude' },
       indexBtn:   { en:'Index', de:'Index', fr:'Index' },
       contactBtn: { en:'Contact', de:'Kontakt', fr:'Contact' },
+      competencesBtn: { en:'Competences', de:'Kompetenzen', fr:'Compétences' },
       backBtn:    { en:'Back', de:'Zurück', fr:'Retour' },
       cvDownload: { en:'Download CV', de:'CV herunterladen', fr:'Télécharger le CV' },
       contactBlock: {
@@ -2093,14 +2248,16 @@
 
 
        const projectsMeta = [
+
       {
         id: 'p1',
         i18n: {
           en: {
-            title: "Interactive Chronological Archive System for an Architecture Studio",
+            title: "Chronological Archive System",
             domain: "Information Design, UX/UI, Interaction Design",
             type: "Client Project",
             year: "2025",
+            description: "Interactive system for browsing architectural projects chronologically. I designed the complete digital archive—from strategy and user needs to interface design and front-end implementation (HTML/CSS/JS).",
             skills: [
               "UX/UI Design",
               "Information Design", 
@@ -2109,10 +2266,11 @@
             ]
           },
           de: {
-            title: "Interaktives chronologisches Archivsystem für ein Architekturbüro",
+            title: "Chronologisches Archivsystem",
             domain: "Informationsdesign, UX/UI, Interaktionsdesign",
             type: "Kundenprojekt",
             year: "2025",
+            description: "Interaktives System zur chronologischen Erkundung von Architekturprojekten. Ich verantwortete das gesamte digitale Archiv – von Strategie und Nutzerbedürfnissen bis hin zu Interface-Design und Frontend-Entwicklung (HTML/CSS/JS).",
             skills: [
               "UX/UI Design",
               "Informationsdesign",
@@ -2121,10 +2279,55 @@
             ]
           },
           fr: {
-            title: "Système d’archive chronologique interactif pour un studio d’architecture",
+            title: "Système d’Archive Chronologique",
             domain: "Information Design, UX/UI, Interaction Design",
             type: "Projet client",
             year: "2025",
+            description: "Système interactif permettant d’explorer des projets architecturaux de manière chronologique. J’ai conçu l’ensemble de l’archive numérique — de la stratégie et des besoins utilisateurs au design d’interface et au développement front-end (HTML/CSS/JS).",
+            skills: [
+              "UX/UI Design",
+              "Information Design",
+              "Développement front-end",
+              "Motion & interaction",
+            ]
+          }
+        }
+      },
+      {
+        id: 'p5',
+        i18n: {
+          en: {
+            title: "Digital Museum Storytelling App",
+            domain: "UX/UI, Interaction Design, Information Design",
+            type: "Applied Research",
+            year: "2025",
+            description: "Mobile app that connects museum artifacts through interactive stories. I led the full digital product workflow—from research and concept to high-fidelity prototypes—developed in collaboration with MA design and business students.",
+            skills: [
+              "Research",
+              "UX/UI Design",
+              "Information Design", 
+              "Front-end Development",
+            ]
+          },
+          de: {
+            title: "Digitale Storytelling-App für Museen",
+            domain: "UX/UI, Interaktionsdesign, Informationsdesign",
+            type: "Kundenprojekt",
+            year: "2025",
+            description: "Mobile App, die Museumsobjekte über interaktive Geschichten miteinander verbindet. Ich leitete den gesamten digitalen Produktprozess – von der Recherche und Konzeption bis zu High-Fidelity-Prototypen – in Zusammenarbeit mit Master-Studierenden aus Design und Wirtschaft.",
+            skills: [
+              "UX/UI Design",
+              "Informationsdesign",
+              "Frontend-Entwicklung",
+              "Motion & Interaktion",
+            ]
+          },
+          fr: {
+            title: "Application de Storytelling Numérique pour Musée",
+            domain: "UX/UI, Interaction Design, Information Design",
+            type: "Projet client",
+            year: "2025",
+            description: "Application mobile reliant les objets du musée à travers des récits interactifs. J’ai dirigé l’ensemble du processus de conception numérique — de la recherche et du concept jusqu’aux prototypes haute fidélité — en collaboration avec des étudiant·e·s en design et en management.",
             skills: [
               "UX/UI Design",
               "Information Design",
@@ -2138,10 +2341,11 @@
         id: 'p2',
         i18n: {
           en: {
-            title: "Business Management App for Restaurant Operations",
-            domain: "Information Architecture, UX/UI",
+            title: "Restaurant Operations App",
+            domain: "UX/UI Design",
             type: "Client Project",
             year: "2024",
+            description: "Application that streamlines internal workflows and communication in a restaurant. I handled the full design process—from user research and flows to interface design and a pixel-perfect prototype.",
             skills: [
               "Information architecture",
               "UX research & prototyping",
@@ -2150,10 +2354,11 @@
             ]
           },
           de: {
-            title: "Business-Management-App für den Restaurantbetrieb",
-            domain: "Informationsarchitektur, UX/UI",
+            title: "App für Restaurantabläufe",
+            domain: "UX/UI Design",
             type: "Kundenprojekt",
             year: "2024",
+            description: "Anwendung zur Optimierung interner Arbeitsabläufe und der Kommunikation in einem Restaurant. Ich verantwortete den gesamten Designprozess – von User Research und Flows bis zum Interface-Design und einem pixelgenauen Prototypen.",
             skills: [
               "Informationsarchitektur",
               "UX-Recherche & Prototyping",
@@ -2162,10 +2367,11 @@
             ]
           },
           fr: {
-            title: "Application de gestion opérationnelle pour un restaurant",
-            domain: "Architecture de l’information, UX/UI",
+            title: "Application pour les Opérations d’un Restaurant",
+            domain: "UX/UI Design",
             type: "Projet client",
             year: "2024",
+            description: "Application qui simplifie les processus internes et la coordination des rôles dans un restaurant. J’ai mené l’ensemble du processus de design — de la recherche utilisateur aux flux, jusqu’au prototype pixel perfect.",
             skills: [
               "Architecture de l’information",
               "Recherche UX & prototypage",
@@ -2179,10 +2385,11 @@
         id: 'p3',
         i18n: {
           en: {
-            title: "Interactive Dashboard for Visualizing Online Conversation Structure and Sentiment Analysis",
+            title: "Online Conversation & Sentiment Dashboard",
             domain: "Information Design, Interaction Design",
             type: "Applied Research",
             year: "2024",
+            description: "Interactive dashboard for exploring the structure and sentiment dynamics of online discussions. I carried out the research, data scraping, cleaning, analysis, visualization, and dashboard prototyping.",
             skills: [
               "Interface Design",
               "Data Visualization",
@@ -2191,10 +2398,11 @@
             ]
           },
           de: {
-          title: "Interaktives Dashboard zur Visualisierung von Online-Gesprächsstrukturen und Sentiment-Analyse",
+          title: "Dashboard für Online-Konversationen & Stimmungsanalyse",
           domain: "Informationsdesign, Interaktionsdesign",
           type: "Angewandte Forschung",
           year: "2024",
+          description: "Interaktives Dashboard zur Untersuchung der Struktur und Stimmungsdynamik von Online-Diskussionen. Ich übernahm die Recherche, das Scraping, die Datenbereinigung, Analyse, Visualisierung und das Prototyping des Dashboards.",
           skills: [
             "Interface-Design",
             "Datenvisualisierung",
@@ -2204,10 +2412,11 @@
         },
 
           fr: {
-          title: "Tableau de bord interactif pour visualiser la structure des conversations en ligne et l’analyse de sentiment",
+          title: "Tableau de Bord des Conversations en Ligne & de l’Analyse de Sentiment",
           domain: "Information Design, Interaction Design",
           type: "Recherche appliquée",
           year: "2024",
+          description: "Tableau de bord interactif permettant d’explorer la structure et les dynamiques de sentiment des discussions en ligne. J’ai réalisé la recherche, le scraping, le nettoyage, l’analyse, la visualisation et le prototype du tableau de bord.",
           skills: [
             "Design d’interface",
             "Visualisation de données",
@@ -2222,10 +2431,11 @@
         id: 'p4',
         i18n: {
           en: {
-            title: "Interactive Infographic of a Housing Module Composition",
+            title: "Modular Housing Infographic",
             domain: "Information Design, Interaction Design",
             type: "Applied Research",
             year: "2024",
+            description: "Interactive infographic illustrating how a modular housing unit is composed and how its elements connect. I redesigned the visual system and built the interactive prototype.",
             skills: [
               "Information design",
               "Prototyping",
@@ -2233,10 +2443,11 @@
             ]
           },
           de: {
-          title: "Interaktive Infografik zur Zusammensetzung eines Wohnmoduls",
+          title: "Modulare Wohnmodul-Infografik",
           domain: "Informationsdesign, Interactionsdesign",
           type: "Angewandte Forschung",
           year: "2024",
+          description: "Interaktive Infografik, die den Aufbau eines modularen Wohnmoduls und die Beziehungen seiner Elemente zeigt. Ich gestaltete das visuelle System neu und entwickelte den interaktiven Prototypen.",
           skills: [
             "Informationsdesign",
             "Prototyping",
@@ -2245,10 +2456,11 @@
         },
 
           fr: {
-          title: "Infographie interactive de la composition d’un module d’habitation",
+          title: "Infographie sur un Module d’Habitation Modulaire",
           domain: "Information Design, Interaction Design",
           type: "Recherche appliquée",
           year: "2024",
+          description: "Infographie interactive expliquant la composition d’un module d’habitation et les relations entre ses éléments. J’ai repensé le système visuel et réalisé le prototype interactif.",
           skills: [
             "Information design",
             "Prototypage",
@@ -2271,7 +2483,7 @@
             de: "Intro",
             fr: "Intro"
           },
-          indices: [0, 1]                 // introAnimated + skillsIntro
+          indices: [0, 1, 2]                 // introAnimated + skillsIntro
         },
         {
           headingI18n: {
@@ -2281,7 +2493,7 @@
           },
           indices: [3, 4, 5]           // P1 intro + problem + solutionsRow + results
         },
-          {
+        {
           headingI18n: {
             en: "Project 2",
             de: "Projekt 2",
@@ -2289,7 +2501,7 @@
           },
           indices: [6, 7, 8]           // P1 intro + problem + solutionsRow + results
         },
-        {
+          {
           headingI18n: {
             en: "Project 3",
             de: "Projekt 3",
@@ -2307,11 +2519,19 @@
         },
         {
           headingI18n: {
+            en: "Project 5",
+            de: "Projekt 5",
+            fr: "Projet 5"
+          },
+          indices: [15, 16, 17]           // P1 intro + problem + solutionsRow + results
+        },
+        {
+          headingI18n: {
             en: "Contact",
             de: "Kontakt",
             fr: "Contact"
           },
-          indices: [15]                    // contact slide
+          indices: [18]                    // contact slide
         }
       ];
 
@@ -2327,15 +2547,15 @@
         layout: 'introAnimated',
         i18n: {
           en: {
-            main: "Welcome, I am Joé. My work relies on strategic thinking and a solution-driven design process that turns complex questions into clear visual and interactive systems.",
+            main: "Welcome, I’m Joé. I design visual and interactive systems and experiences, guided by strategic thinking and a curious, solution-oriented approach.",
             indexTitle: "About"
           },
           de: {
-            main: "Willkommen, ich bin Joé. Meine Arbeit basiert auf strategischem Denken und einem lösungsorientierten Designprozess, der komplexe Fragestellungen in klare visuelle und interaktive Systeme übersetzt.",
+            main: "Willkommen, ich bin Joé. Ich gestalte visuelle und interaktive Systeme und Erlebnisse, geprägt von strategischem Denken und einer neugierigen, lösungsorientierten Arbeitsweise.",
             indexTitle: "Über"
           },
           fr: {
-            main: "Bienvenue, je suis Joé. Mon travail s’appuie sur une réflexion stratégique et un processus de design orienté vers la solution, qui transforme des questions complexes en systèmes visuels et interactifs clairs.",
+            main: "Bienvenue, je suis Joé. Je conçois des systèmes et des expériences visuelles et interactives, guidés par une réflexion stratégique et une approche curieuse et orientée vers les solutions.",
             indexTitle: "À propos"
           }
         },
@@ -2344,18 +2564,27 @@
       },
 
 
-      /* A2) INTRO — SKILLS MAP */
       /* A2) INTRO — SKILLS & COMPETENCES MAP */
       {
         type: 'text',
         layout: 'skillsMap',
         i18n: {
-          en: { indexTitle: "Skills & competences" },
-          de: { indexTitle: "Skills & Kompetenzen" },
-          fr: { indexTitle: "Compétences & skills" }
+          en: {
+            indexTitle: "Skills & competences",
+            body: "Information/interaction designer working at the intersection of digital products, data, and storytelling. I design interfaces, systems, and visualizations that make information and processes accessible, usable, and intuitive so that people can achieve their goals."
+          },
+          de: {
+            indexTitle: "Skills & Kompetenzen",
+            body: "Information- und Interaction Designer, tätig an der Schnittstelle von digitalen Produkten, Daten und Storytelling. Ich gestalte Interfaces, Systeme und Visualisierungen, die Informationen und Prozesse zugänglich, benutzbar und intuitiv machen, damit Nutzern ihre Ziele erreichen können."
+          },
+          fr: {
+            indexTitle: "Compétences & skills",
+            body: "Designer en information et interaction, travaillant à l’intersection des produits numériques, des données et du storytelling. Je conçois des interfaces, des systèmes et des visualisations qui rendent l’information et les processus accessibles, utilisables et intuitifs afin que les utilisateurs puissent atteindre leurs objectifs."
+          }
         },
         showTitle: false
       },
+
 
 
           /* A3) PROJECTS OVERVIEW (cards hub) */
@@ -2375,7 +2604,10 @@
 
 
 
-      /* PROJECT 1 – PROBLEM FRAMING (TEXT BLOCK) */
+
+
+
+       /* PROJECT 2 – PROBLEM FRAMING (TEXT BLOCK) */
       {
         type: 'text',
         layout: 'textBlock',
@@ -2401,7 +2633,7 @@
 
       
 
-      /* B3) PROJECT 1 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      /* B3) PROJECT 2 – SOLUTIONS (HORIZONTAL CAROUSEL) */
       {
         type: 'group',
         layout: 'solutionsRow',
@@ -2448,6 +2680,9 @@
 
 
 
+
+
+/////////////2////////
 
 
       /* B4) PROJECT 1 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
@@ -2514,6 +2749,180 @@
       },
 
 
+
+
+
+
+
+
+      /* PROJECT 1 – PROBLEM FRAMING (TEXT BLOCK) */
+      {
+        type: 'text',
+        layout: 'textBlock',
+        i18n: {
+          en: {
+            label: "Problem framing",
+            body:  "The museum’s historical artifacts are grouped into three main themes, but visitors often struggle to understand how objects and rooms relate to one another. The overall storytelling is fragmented, making it difficult to follow a coherent narrative. A second challenge concerns user engagement: visitors need stronger motivation and more intuitive tools to explore the exhibition.",
+            indexTitle: "Problem framing"
+          },
+          de: {
+            label: "Problem framing",
+            body:  "Die historischen Artefakte des Museums sind in drei Hauptthemen gruppiert, doch Besucher haben oft Schwierigkeiten zu verstehen, wie Objekte und Räume miteinander verbunden sind. Dadurch wirkt die Gesamtgeschichte fragmentiert und schwer nachvollziehbar. Eine weitere Herausforderung betrifft die Nutzererfahrung: Besucher benötigen stärkere Motivation und intuitivere Mittel, um die Ausstellung aktiv zu erkunden.",
+            indexTitle: "Problem framing"
+          },
+          fr: {
+            label: "Problem framing",
+            body:  "Les artefacts historiques du musée sont organisés en trois grands thèmes, mais les visiteurs peinent souvent à comprendre les liens entre les objets et les différentes salles. La narration globale apparaît donc fragmentée et difficile à suivre. Une deuxième difficulté concerne l’expérience utilisateur : les visiteurs ont besoin de plus de motivation et d’outils intuitifs pour explorer l’exposition.",
+            indexTitle: "Problématisation"
+          }
+        },
+        showTitle: false
+      },
+
+      
+
+      /* B3) PROJECT 1 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      {
+        type: 'group',
+        layout: 'solutionsRow',
+        solutions: [
+
+          {
+            type: 'img',
+            src: 'assets/img/project5_solution1.png',
+            i18n: {
+              en: {
+                title: "Develop an intuitive interface that increases engagement and helps create connected stories."
+              },
+              de: {
+                title: "Entwicklung einer intuitiven Benutzeroberfläche, die Engagement fördert und zusammenhängende Geschichten sichtbar macht."
+              },
+              fr: {
+                title: "Développer une interface intuitive pour renforcer l’engagement et révéler des récits connectés."
+              }
+            }
+          },
+          
+          {
+            type: 'video',
+            src: 'assets/video/project5_video1.mp4',
+            i18n: {
+              en: {
+                title: "Enable visitors to move from individual objects to broader, interconnected narratives."
+              },
+              de: {
+                title: "Ermöglichen, von einzelnen Objekten zu übergeordneten, miteinander verbundenen Narrativen zu navigieren."
+              },
+              fr: {
+                title: "Offrir plusieurs points de vue et permettre d’explorer les histoires à travers une perspective chronologique."
+              }
+            }
+          },
+          {
+            type: 'video',
+            src: 'assets/video/project5_video2.mp4',
+            i18n: {
+              en: {
+                title: "Present multiple perspectives and allow visitors to explore stories through a chronological lens."
+              },
+              de: {
+                title: "Präsentation mehrerer Perspektiven und Erkundung der Geschichten aus einer zeitlichen Sichtweise."
+              },
+              fr: {
+                title: "Offrir plusieurs points de vue et permettre d’explorer les histoires à travers une perspective chronologique."
+              }
+            }
+          },
+          {
+            type: 'video',
+            src: 'assets/video/project5_video3.mp4',
+            i18n: {
+              en: {
+                title: "Provide an overview of the collection to support open exploration of different narrative paths."
+              },
+              de: {
+                title: "Bereitstellung einer Übersicht, die eine offene und selbstbestimmte Exploration verschiedener Storylines unterstützt."
+              },
+              fr: {
+                title: "Fournir une vue d’ensemble de la collection afin de faciliter une exploration libre des différentes trajectoires narratives."
+              }
+            }
+          }
+        ],
+        i18n: {
+          en: { indexTitle: "Solutions" },
+          de: { indexTitle: "Lösungen" },
+          fr: { indexTitle: "Solutions" }
+        },
+        showTitle: false
+      },
+
+
+
+
+
+      /* B4) PROJECT 1 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      {
+        type: 'text',
+        layout: 'resultsBlock',
+        i18n: {
+          en: {
+            label: "Key outcomes & results",
+            items: [
+              {
+                status: 'success',  // green dot
+                text: "Survey responses indicated a clear increase in visitor interest and engagement. Many participants expressed that the added digital layer enhanced their understanding of the artifacts and motivated them to spend more time exploring the exhibition."
+              },
+              {
+                status: 'success',  // green dot
+                text: "Many visitors reported that interacting with the artifacts and discovering connections made their visit more exploratory and intentional."
+              },
+              {
+                status: 'improve',  // red dot
+                text: "Some less tech-savvy visitors experienced higher cognitive load when using the interactive diagram, which occasionally made the experience more complex instead of simplifying it."
+              }
+            ],
+            indexTitle: "Outcomes"
+          },
+          de: {
+            label: "Ergebnisse & Wirkung",
+            items: [
+              {
+                status: 'success',
+                text: "Umfrageergebnisse zeigten einen deutlichen Anstieg des Besucherinteresses und der allgemeinen Beteiligung. Viele Teilnehmende gaben an, dass die zusätzliche digitale Ebene ihr Verständnis der Artefakte verbesserte und sie dazu motivierte, mehr Zeit in der Ausstellung zu verbringen."
+              },
+              {
+                status: 'success',
+                text: "Viele Besucher berichteten, dass das Interagieren mit den Artefakten und das Entdecken von Verbindungen ihr Besuchserlebnis neugieriger und gezielter machte."
+              },
+              {
+                status: 'improve',
+                text: "Für weniger technikaffine Besucher führte das interaktive Diagramm teilweise zu einer erhöhten kognitiven Belastung und erschwerte die Orientierung."
+              }
+            ],
+            indexTitle: "Ergebnisse"
+          },
+          fr: {
+            label: "Résultats & effets",
+            items: [
+              {
+                status: 'success',
+                text: "Les réponses aux enquêtes ont montré une nette augmentation de l’intérêt et de l’engagement des visiteurs. De nombreux participants ont indiqué que la couche numérique ajoutée améliorait leur compréhension des artefacts et les motivait à passer plus de temps dans l’exposition."
+              },
+              {
+                status: 'success',
+                text: "Beaucoup de visiteurs ont signalé que l’interaction avec les artefacts et la découverte des connexions rendaient leur visite plus exploratoire et intentionnelle."
+              },
+              {
+                status: 'improve',
+                text: "Pour les visiteurs moins à l’aise avec la technologie, le diagramme interactif a parfois entraîné une charge cognitive plus élevée, rendant l’expérience plus complexe qu’utile."
+              }
+            ],
+            indexTitle: "Résultats"
+          }
+        },
+        showTitle: false
+      },
 
 
 
@@ -2613,7 +3022,7 @@
        
 
 
-      /* B4) PROJECT 2 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      /* B4) PROJECT 3 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
       {
         type: 'text',
         layout: 'resultsBlock',
@@ -2685,7 +3094,7 @@
 
 
 
-      /* B2) PROJECT 3 – PROBLEM FRAMING (TEXT BLOCK) */
+      /* B2) PROJECT 4 – PROBLEM FRAMING (TEXT BLOCK) */
       {
         type: 'text',
         layout: 'textBlock',
@@ -2714,7 +3123,7 @@
       
 
 
-      /* B3) PROJECT 3 – SOLUTIONS (HORIZONTAL CAROUSEL) */
+      /* B3) PROJECT 4 – SOLUTIONS (HORIZONTAL CAROUSEL) */
       {
         type: 'group',
         layout: 'solutionsRow',
@@ -2777,7 +3186,7 @@
 
 
 
-      /* B4) PROJECT 3 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
+      /* B4) PROJECT 5 – KEY OUTCOMES / RESULTS (MULTI-PARAGRAPH) */
       {
         type: 'text',
         layout: 'resultsBlock',
@@ -2849,7 +3258,7 @@
 
 
 
-      /* B2) PROJECT 4–  PROBLEM FRAMING (TEXT BLOCK) */
+      /* B2) PROJECT 5–  PROBLEM FRAMING (TEXT BLOCK) */
       {
         type: 'text',
         layout: 'textBlock',
@@ -3125,6 +3534,33 @@
       return btn;
     }
 
+
+    function buildCompetencesButton(){
+  const btn = document.createElement('button');
+  btn.className = 'competences-btn';
+  btn.type = 'button';
+  btn.textContent = uiStrings.competencesBtn[currentLang];
+
+  btn.addEventListener('pointerenter', () => setCursorSolid(true));
+  btn.addEventListener('pointerleave', () => setCursorSolid(false));
+  btn.addEventListener('click', () => {
+    // find the slide with layout === 'skillsMap'
+    const skillsIndex = slides.findIndex(sl => sl.layout === 'skillsMap');
+    if (skillsIndex < 0) return;
+
+    const slidesEl = Array.from(scroller.querySelectorAll('.slide'));
+    const target   = slidesEl[skillsIndex];
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  return btn;
+}
+
+
+
+
     function buildLangSwitch(){
       const wrap = document.createElement('div');
       wrap.className = 'lang-switch';
@@ -3150,17 +3586,20 @@
       slide.className = 'slide';
       slide.setAttribute('data-index', idx);
 
-      // Top bar: index / contact / lang
-      const idxBtnEl     = buildIndexButton();
-      const contactBtnEl = buildContactButton();
-      const langEl       = buildLangSwitch();
+    // Top bar: index / competences / contact / lang
+      const idxBtnEl          = buildIndexButton();
+      const competencesBtnEl  = buildCompetencesButton();   // ← NEW
+      const contactBtnEl      = buildContactButton();
+      const langEl            = buildLangSwitch();
 
       const topBar = document.createElement('div');
       topBar.className = 'slide-topbar';
       topBar.appendChild(idxBtnEl);
+      topBar.appendChild(competencesBtnEl);  // ← NEW
       topBar.appendChild(contactBtnEl);
       topBar.appendChild(langEl);
       slide.appendChild(topBar);
+
 
       let mediaEl = null;
       let titleEl = null;
@@ -3259,6 +3698,7 @@ if (s.layout === 'introAnimated') {
     cvLinkEl,
     contactBlockEl,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -3320,6 +3760,7 @@ if (s.layout === 'textBlock') {
     cvLinkEl,
     contactBlockEl,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -3460,6 +3901,7 @@ wrap.appendChild(nav);
     cvLinkEl,
     contactBlockEl,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -3566,6 +4008,7 @@ if (s.layout === 'projectIntro') {
     cvLinkEl: null,
     contactBlockEl: null,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -3590,10 +4033,39 @@ if (s.layout === 'skillsMap') {
   const wrap = document.createElement('div');
   wrap.className = 'skills-inner';
 
+  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
+  const bodyText = langPack.body || '';
+
+  // LEFT COLUMN: text
+  const textCol = document.createElement('div');
+  textCol.className = 'skills-text';
+
+  const textInner = document.createElement('div');
+  textInner.className = 'skills-text-inner';
+
+  const mainTextEl = document.createElement('p');
+  mainTextEl.className = 'skills-text-main';
+  mainTextEl.textContent = bodyText;
+
+  textInner.appendChild(mainTextEl);
+  textCol.appendChild(textInner);
+
+  // RIGHT COLUMN: diagram
+  const diagramCol = document.createElement('div');
+  diagramCol.className = 'skills-diagram';
+
+  const diagramInner = document.createElement('div');
+  diagramInner.className = 'skills-diagram-inner';
+
   const svgNS  = 'http://www.w3.org/2000/svg';
   const svgEl  = document.createElementNS(svgNS, 'svg');
-  // we’ll hook D3 on this element
-  wrap.appendChild(svgEl);
+
+  diagramInner.appendChild(svgEl);
+  diagramCol.appendChild(diagramInner);
+
+  // assemble
+  wrap.appendChild(textCol);
+  wrap.appendChild(diagramCol);
   slide.appendChild(wrap);
 
   // build the force diagram in this SVG
@@ -3612,16 +4084,17 @@ if (s.layout === 'skillsMap') {
     cvLinkEl: null,
     contactBlockEl: null,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
-    ctaEl: null
+    ctaEl: null,
+    skillsTextEl: mainTextEl   // for language updates
   });
 
   scroller.appendChild(slide);
   return;
 }
-
 
 
 
@@ -3641,8 +4114,8 @@ if (s.layout === 'solutionsRow') {
 
   (s.solutions || []).forEach((itemConf, solIdx) => {
     const langPackItem =
-      itemConf.i18n?.[currentLang] ||
-      itemConf.i18n?.en ||
+      (itemConf.i18n && itemConf.i18n[currentLang]) ||
+      (itemConf.i18n && itemConf.i18n.en) ||
       {};
 
     const card = document.createElement('article');
@@ -3668,10 +4141,12 @@ if (s.layout === 'solutionsRow') {
     wrapper.style.justifyContent = 'center';
     wrapper.style.alignItems = 'center';
     wrapper.style.overflow = 'hidden';
-    // shift a bit upward (tweak -5% / -10% if you want)
-    wrapper.style.transform = 'translateY(4%)';
 
+    // --- VIDEO ---
     if (itemConf.type === 'video') {
+      // let overlays (timeline, buttons) receive pointer events
+      wrapper.style.pointerEvents = 'none';
+
       const vid = document.createElement('video');
       vid.src = itemConf.src;
       vid.playsInline = true;
@@ -3682,12 +4157,161 @@ if (s.layout === 'solutionsRow') {
       vid.style.width = '100%';
       vid.style.height = '100%';
       vid.style.objectFit = 'contain';
+      vid.style.objectPosition = 'center';
 
       mediaNode = vid;
       wrapper.appendChild(vid);
+
+      // --- small interactive video timeline (progress bar + handle) ---
+      const progress = document.createElement('div');
+      progress.className = 'solution-video-progress';
+
+      const progressFill = document.createElement('div');
+      progressFill.className = 'solution-video-progress-fill';
+
+      const progressHandle = document.createElement('div');
+      progressHandle.className = 'solution-video-progress-handle';
+
+      progress.appendChild(progressFill);
+      progress.appendChild(progressHandle);
+
+      // --- SMALL PAUSE + RESTART BUTTONS ---
+      const controls = document.createElement('div');
+      controls.className = 'solution-video-controls';
+
+      // pause toggle ( ❚❚ / ▶ )
+      const pauseBtn = document.createElement('div');
+      pauseBtn.className = 'solution-video-btn';
+      pauseBtn.textContent = '❚❚';
+
+      // restart ( ↺ )
+      const restartBtn = document.createElement('div');
+      restartBtn.className = 'solution-video-btn';
+      restartBtn.textContent = '↺';
+
+      controls.appendChild(pauseBtn);
+      controls.appendChild(restartBtn);
+
+      // row wrapper that aligns bar + buttons on same height
+      const barRow = document.createElement('div');
+      barRow.className = 'solution-video-bar';
+      barRow.appendChild(progress);
+      barRow.appendChild(controls);
+
+      // attach the row at the bottom of the stage
+      stage.appendChild(barRow);
+
+      // --- SMOOTH UI UPDATE ---
+      const updateProgressUI = () => {
+        if (!vid.duration || isNaN(vid.duration)) return;
+        const ratio = Math.min(Math.max(vid.currentTime / vid.duration, 0), 1);
+        progressFill.style.transform = `scaleX(${ratio})`;
+        progressHandle.style.left = `${ratio * 100}%`;
+      };
+
+      // animation loop for ultra-smooth cursor
+      let frameId = null;
+
+      const stopLoop = () => {
+        if (frameId !== null) {
+          cancelAnimationFrame(frameId);
+          frameId = null;
+        }
+      };
+
+      const loop = () => {
+        updateProgressUI();
+        frameId = requestAnimationFrame(loop);
+      };
+
+      vid.addEventListener('play', () => {
+        stopLoop();
+        loop();
+      });
+
+      vid.addEventListener('pause', stopLoop);
+      vid.addEventListener('ended', stopLoop);
+      vid.addEventListener('loadedmetadata', updateProgressUI);
+
+      // --- INTERACTIVE SCRUBBING ---
+      let isScrubbing = false;
+      let wasPlayingBeforeScrub = false;
+
+      const seekFromClientX = (clientX) => {
+        if (!vid.duration || isNaN(vid.duration)) return;
+        const rect = progress.getBoundingClientRect();
+        if (!rect.width) return;
+        const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+        vid.currentTime = ratio * vid.duration;
+        updateProgressUI();
+      };
+
+      progress.addEventListener('pointerdown', (ev) => {
+        isScrubbing = true;
+        wasPlayingBeforeScrub = !vid.paused;
+        vid.pause();
+
+        if (progress.setPointerCapture) {
+          progress.setPointerCapture(ev.pointerId);
+        }
+        seekFromClientX(ev.clientX);
+
+        if (typeof setCursorSolid === 'function') {
+          setCursorSolid(true);
+        }
+      });
+
+      progress.addEventListener('pointermove', (ev) => {
+        if (!isScrubbing) return;
+        seekFromClientX(ev.clientX);
+      });
+
+      progress.addEventListener('pointerup', (ev) => {
+        if (!isScrubbing) return;
+        isScrubbing = false;
+
+        if (progress.releasePointerCapture) {
+          try {
+            progress.releasePointerCapture(ev.pointerId);
+          } catch (e) {}
+        }
+
+        if (wasPlayingBeforeScrub) {
+          vid.play();
+        }
+
+        if (typeof setCursorSolid === 'function') {
+          setCursorSolid(false);
+        }
+      });
+
+      progress.addEventListener('pointerleave', () => {
+        if (!isScrubbing && typeof setCursorSolid === 'function') {
+          setCursorSolid(false);
+        }
+      });
+
+      // --- PAUSE / RESTART LOGIC ---
+      pauseBtn.addEventListener('click', () => {
+        if (vid.paused) {
+          vid.play();
+          pauseBtn.textContent = '❚❚'; // pause icon
+        } else {
+          vid.pause();
+          pauseBtn.textContent = '▶'; // play icon
+        }
+      });
+
+      restartBtn.addEventListener('click', () => {
+        vid.currentTime = 0;
+        vid.play();
+        pauseBtn.textContent = '❚❚'; // back to pause icon
+      });
+
+    // --- IMAGES (PNG/JPG/etc.) ---
     } else if (
       itemConf.type === 'image' ||
-      itemConf.type === 'png'   ||
+      itemConf.type === 'png' ||
       itemConf.type === 'img'
     ) {
       const img = new Image();
@@ -3734,6 +4358,7 @@ if (s.layout === 'solutionsRow') {
     cvLinkEl: null,
     contactBlockEl: null,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -3744,6 +4369,7 @@ if (s.layout === 'solutionsRow') {
   scroller.appendChild(slide);
   return;
 }
+
 
 
 
@@ -3762,17 +4388,19 @@ if (s.layout === 'projectsOverview') {
   // mapping from project id to first slide index of that project
   const projectFirstSlideIndex = {
     p1: 3,   // Project 1 — first projectIntro
-    p2: 6,   // Project 2 — first projectIntro
-    p3: 9,   // Project 3 — first projectIntro
-    p4: 12   // Project 4 — first projectIntro
+    p5: 6,   // Project 2 — first projectIntro
+    p2: 9,   // Project 3 — first projectIntro
+    p3: 12,   // Project 4 — first projectIntro
+    p4: 15
   };
 
   // optional thumbnails per project (PNG)
   const projectThumbs = {
     p1: 'assets/img/project1_thumb.png',
+    p5: 'assets/img/project5_thumb.png',
     p2: 'assets/img/project2_thumb.png',
     p3: 'assets/img/project3_thumb.png',
-    p4: 'assets/img/project4_thumb.png'
+    p4: 'assets/img/project4_thumb.png',
   };
 
   // NEW: store references to text elements per project
@@ -3792,7 +4420,7 @@ if (s.layout === 'projectsOverview') {
     titleEl.textContent = projLang.title || '';
     card.appendChild(titleEl);
 
-    // meta (domain / type / year – vertical stack)
+        // meta (domain / type / year – vertical stack)
     const metaRow = document.createElement('div');
     metaRow.className = 'project-card-meta-row';
 
@@ -3813,7 +4441,16 @@ if (s.layout === 'projectsOverview') {
 
     card.appendChild(metaRow);
 
-    // thumbnail zone just under meta
+    // NEW: small description under meta (optional)
+    let descEl = null;
+    if (projLang.description) {
+      descEl = document.createElement('p');
+      descEl.className = 'project-card-description';
+      descEl.textContent = projLang.description;
+      card.appendChild(descEl);
+    }
+
+    // thumbnail zone just under description / meta
     const thumbWrap = document.createElement('div');
     thumbWrap.className = 'project-card-thumb';
 
@@ -3826,13 +4463,15 @@ if (s.layout === 'projectsOverview') {
     }
     card.appendChild(thumbWrap);
 
-    // NEW: save refs for this project
+    // save refs for this project (now with descEl)
     projectsOverviewCards[pm.id] = {
       titleEl,
       domainEl,
       typeEl,
-      yearEl
+      yearEl,
+      descEl
     };
+
 
     // Scroll to the right project block when clicked
     card.addEventListener('click', () => {
@@ -3862,6 +4501,7 @@ if (s.layout === 'projectsOverview') {
     cvLinkEl: null,
     contactBlockEl: null,
     idxBtnEl,
+    competencesBtnEl,
     contactBtnEl,
     langEl,
     conf: s,
@@ -4035,6 +4675,7 @@ if (s.layout === 'contact') {
         introMainText: null,
         introSubText: null,
         cvLinkEl,
+        competencesBtnEl,
         contactBlockEl,
         idxBtnEl,
         contactBtnEl,
@@ -4162,12 +4803,13 @@ if (s.layout === 'contact') {
       cursor.classList.add('visible');
       cursorVisible = true;
       const onHot =
-        !!e.target.closest('.index-btn') ||
-        !!e.target.closest('.contact-btn') ||
-        !!e.target.closest('.lang-switch') ||
-        !!e.target.closest('.cta-btn') ||
-        !!e.target.closest('.index-item-btn') ||
-        !!e.target.closest('.cv-link');
+      !!e.target.closest('.index-btn') ||
+      !!e.target.closest('.contact-btn') ||
+      !!e.target.closest('.lang-switch') ||
+      !!e.target.closest('.cta-btn') ||
+      !!e.target.closest('.index-item-btn') ||
+      !!e.target.closest('.cv-link');
+
       cursor.classList.toggle('solid', onHot);
     }
 
@@ -4262,6 +4904,27 @@ if (s.layout === 'contact') {
           }
         }
 
+        if (r.competencesBtnEl) {
+          if (active) {
+            r.competencesBtnEl.style.opacity = '1';
+            r.competencesBtnEl.style.pointerEvents = 'auto';
+
+            // wenn die aktive Slide die Competences-Seite ist → Button grau machen
+            if (r.conf.layout === "skillsMap") {
+              r.competencesBtnEl.classList.add("is-current");
+            } else {
+              r.competencesBtnEl.classList.remove("is-current");
+            }
+
+          } else {
+            r.competencesBtnEl.style.opacity = '0';
+            r.competencesBtnEl.style.pointerEvents = 'none';
+            r.competencesBtnEl.classList.remove("is-current");
+          }
+        }
+
+
+
         if (r.langEl){
           if (active){
             r.langEl.style.opacity = '1';
@@ -4292,7 +4955,6 @@ if (s.layout === 'contact') {
     const conf     = r.conf;
     const langPack = conf.i18n?.[currentLang] || conf.i18n?.en || {};
 
-    // --- projectsOverview: update project cards from projectsMeta ---
     if (conf.layout === 'projectsOverview' && r.projectsOverviewCards) {
       Object.keys(r.projectsOverviewCards).forEach(projectId => {
         const pm = projectsMeta.find(p => p.id === projectId);
@@ -4305,8 +4967,14 @@ if (s.layout === 'contact') {
         if (refs.domainEl) refs.domainEl.textContent = projLang.domain || '';
         if (refs.typeEl)   refs.typeEl.textContent   = projLang.type   || '';
         if (refs.yearEl)   refs.yearEl.textContent   = projLang.year   || '';
+
+        // NEW: description for each language
+        if (refs.descEl) {
+          refs.descEl.textContent = projLang.description || '';
+        }
       });
     }
+
 
 
         /// TEXT BLOCK SLIDES (including problem framing)
@@ -4314,6 +4982,12 @@ if (s.layout === 'contact') {
       if (r.introLabelEl) r.introLabelEl.textContent = langPack.label || '';
       if (r.introBodyEl)  r.introBodyEl.textContent  = langPack.body  || '';
     }
+
+    // SKILLS MAP: update left-column text
+    if (conf.layout === 'skillsMap' && r.skillsTextEl) {
+      r.skillsTextEl.textContent = langPack.body || '';
+    }
+
 
     // Scroll hint (used on intro + problem framing)
     if (r.scrollHintEl) {
@@ -4604,21 +5278,21 @@ function buildSkillsForceDiagram(svgNode) {
         type: "main",
         group: "digital",
         label: "Digital Product &\nInteraction Design",
-        radius: 80
+        radius: 100
       },
       {
         id: "Information & Visual Systems",
         type: "main",
         group: "information",
         label: "Information &\nVisual Systems",
-        radius: 80
+        radius: 100
       },
       {
         id: "Research & Technical Implementation",
         type: "main",
         group: "research",
         label: "Research &\nTechnical Implementation",
-        radius: 80
+        radius: 100
       },
 
       // SUB – Digital
@@ -4628,7 +5302,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "digital",
         parent: "digital",
         label: "UX/UI\nDesign",
-        radius: 50
+        radius: 70
       },
       {
         id: "Interaction Design",
@@ -4636,7 +5310,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "digital",
         parent: "digital",
         label: "Interaction\nDesign",
-        radius: 50
+        radius: 70
       },
       {
         id: "User Flows & Task Modelling",
@@ -4644,7 +5318,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "digital",
         parent: "digital",
         label: "User Flows &\nTask Modelling",
-        radius: 45
+        radius: 70
       },
       {
         id: "Prototyping & Behaviours",
@@ -4652,7 +5326,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "digital",
         parent: "digital",
         label: "Prototyping &\nBehaviours",
-        radius: 45
+        radius: 70
       },
       {
         id: "Usability & Accessibility",
@@ -4660,7 +5334,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "digital",
         parent: "digital",
         label: "Usability &\nAccessibility",
-        radius: 45
+        radius: 70
       },
 
       // SUB – Information
@@ -4670,7 +5344,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "information",
         parent: "information",
         label: "Information\nDesign",
-        radius: 45
+        radius: 70
       },
       {
         id: "Data Visualization",
@@ -4678,7 +5352,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "information",
         parent: "information",
         label: "Data\nVisualization",
-        radius: 45
+        radius: 70
       },
       {
         id: "Diagramming & Infographics",
@@ -4686,7 +5360,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "information",
         parent: "information",
         label: "Diagramming &\nInfographics",
-        radius: 45
+        radius: 70
       },
       {
         id: "Visual Communication",
@@ -4694,7 +5368,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "information",
         parent: "information",
         label: "Visual\nCommunication",
-        radius: 45
+        radius: 70
       },
 
       // SUB – Research & Technical Implementation
@@ -4704,7 +5378,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "research",
         parent: "research",
         label: "Practice-based\nResearch",
-        radius: 45
+        radius: 70
       },
       {
         id: "User Research",
@@ -4712,7 +5386,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "research",
         parent: "research",
         label: "User\nResearch",
-        radius: 45
+        radius: 70
       },
       {
         id: "Front-end Development (basics)",
@@ -4720,7 +5394,7 @@ function buildSkillsForceDiagram(svgNode) {
         group: "research",
         parent: "research",
         label: "Front-end\nDevelopment\n(basics)",
-        radius: 45
+        radius: 70
       }
     ],
     links: [
@@ -4817,8 +5491,8 @@ function buildSkillsForceDiagram(svgNode) {
   }
 
   const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.id).distance(160))
-    .force("charge", d3.forceManyBody().strength(-300))
+    .force("link", d3.forceLink(links).id(d => d.id).distance(200))
+    .force("charge", d3.forceManyBody().strength(-500))
     .force("center", d3.forceCenter(width / 2, height / 2))
     .force("collision", d3.forceCollide().radius(d => d.radius + 10))
     .on("tick", ticked);
@@ -4838,7 +5512,7 @@ function buildSkillsForceDiagram(svgNode) {
 
   node.append("circle")
     .attr("r", d => d.radius)
-    .attr("fill", d => d.type === "main" ? "#000000" : "#777777");
+    .attr("fill", d => d.type === "main" ? "#f0f0f0" : "#cccccc");
 
   // Multiline labels, vertically centered
   // Multiline labels via <tspan>
@@ -4888,27 +5562,27 @@ function buildSkillsForceDiagram(svgNode) {
 
   function resetStyles() {
     node.select("circle")
-      .attr("fill", d => (d.type === "main" ? "#000000" : "#777777"))
+      .attr("fill", d => (d.type === "main" ? "#f0f0f0" : "#cccccc"))
       .attr("opacity", 1);
 
     node.select("text")
-      .attr("fill", "#ffffff")
+      .attr("fill", "#000000")
       .attr("opacity", 1);
 
     link
-      .attr("stroke", "#000000")
+      .attr("stroke", "#fcfcfc")
       .attr("stroke-opacity", 1);
   }
 
   function applyActiveStyles() {
     node.select("circle")
       .attr("fill", d => {
-        if (!activeGroup) return d.type === "main" ? "#000000" : "#777777";
+        if (!activeGroup) return d.type === "main" ? "#f0f0f0" : "##cccccc";
         if (d.type === "main") {
-          return d.group === activeGroup ? "#000000" : "#dddddd";
+          return d.group === activeGroup ? "#f0f0f0" : "#ffffff";
         }
         if (d.type === "sub") {
-          return d.parent === activeGroup ? "#777777" : "#dddddd";
+          return d.parent === activeGroup ? "#cccccc" : "#ffffff";
         }
       })
       .attr("opacity", d => {
@@ -4919,12 +5593,12 @@ function buildSkillsForceDiagram(svgNode) {
 
     node.select("text")
       .attr("fill", d => {
-        if (!activeGroup) return "#ffffff";
+        if (!activeGroup) return "#000000";
         if (d.type === "main") {
-          return d.group === activeGroup ? "#ffffff" : "#f5f5f5";
+          return d.group === activeGroup ? "#000000" : "#f5f5f5";
         }
         if (d.type === "sub") {
-          return d.parent === activeGroup ? "#ffffff" : "#f5f5f5";
+          return d.parent === activeGroup ? "#000000" : "#f5f5f5";
         }
       })
       .attr("opacity", d => {
@@ -4935,8 +5609,8 @@ function buildSkillsForceDiagram(svgNode) {
 
     link
       .attr("stroke", l => {
-        if (!activeGroup)      return "#000000";
-        if (l.group === activeGroup) return "#000000";
+        if (!activeGroup)      return "#f0f0f0";
+        if (l.group === activeGroup) return "#f0f0f0";
         if (l.group === "mains")     return "#dddddd";
         return "#dddddd";
       })
