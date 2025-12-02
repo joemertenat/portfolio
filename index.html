@@ -510,12 +510,12 @@
 
 
 
-/* --- SKILLS RADAR SLIDE --- */
-/* --- SKILLS / COMPETENCES PAGE --- */
+
+/* --- SKILLS / COMPETENCES — FOUR COLLAPSING BLOCKS --- */
 .slide.skills-slide {
   background: #fcfcfc;
   display: flex;
-  align-items: center;
+  align-items: flex-start;      /* anchor content to the top */
   justify-content: center;
   padding: 0 8vw;
 }
@@ -523,153 +523,100 @@
 .skills-inner {
   max-width: 1180px;
   width: 100%;
-  height: 100vh;
+  /* no min-height / no vertical centering => prevents jumping */
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6vw;
+  flex-direction: column;
+  justify-content: flex-start;  /* keep top-anchored */
+  gap: 2.5rem;
+  padding: 35vh 0 8vh;         /* visually centered but stable */
 }
 
-/* LEFT COLUMN: text */
-.skills-text {
-  flex: 0 0 40%;
+
+/* Four-column grid */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.6rem;
+}
+
+/* Block container */
+.skills-column {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.06);
+  padding: 1.1rem 1.4rem;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.04);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    max-height 0.35s ease;
+
+  max-height: 3.2rem;          /* default: only title visible */
 }
 
-.skills-text-inner {
-  max-width: 50rem;
-  text-align: left;
+/* Hover: expand downwards, position stays fixed */
+.skills-column:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.12);
+  max-height: 380px;          /* enough space to reveal sub-points */
 }
 
-/* same style as intro text, slightly smaller */
-.skills-text-main {
+/* Title */
+.skills-column-title {
   margin: 0;
-  font-weight: 400;
-  font-size: clamp(16px, 2.2vw, 16px);
-  line-height: 1.5;
-  white-space: pre-wrap;
-
-  background: #000000;
-  -webkit-background-clip: text;
-  color: transparent;
-
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity .6s ease-out .2s,
-    transform .6s ease-out .2s;
+  font-size: 15px;
+  font-weight: 600;
+  color: #111;
 }
 
-.skills-slide.is-visible .skills-text-main {
-  opacity: 1;
-  transform: none;
-}
+/* Items container (revealed by max-height change on parent) */
+.skills-column-list {
+  margin: 1.3rem 0 0 0;
 
-.skills-diagram {
-  flex: 0 0 48%;        /* ↓ pulls the diagram LEFT */
-  margin-right: 5vw;    /* ↓ adds breathing room from right edge */
+  padding: 0;
+  list-style: none;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-
-.skills-diagram-inner {
-  width: min(100vh, 100vw);
-  aspect-ratio: 1 / 1;
+/* Sub-competence line with a small dot */
+.skills-column-item {
+  position: relative;
+  padding-left: 1.1rem;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: #111;
 }
 
-/* --- SKILLS FORCE DIAGRAM (competences page) --- */
-.skills-force-svg {
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-  display: block;
-
-  /* NEW: move the whole diagram slightly to the left */
-  transform: translateX(-10%);
+/* Nicely designed dot */
+.skills-column-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: #111;
+  opacity: 0.7;
 }
 
-
-
-/* grid: empty circle + rings + axes (always visible) */
-.radar-grid-circle {
-  fill: none;
-  stroke: #e4e4e4;
-  stroke-width: 0.5;
+/* Responsive */
+@media (max-width: 1100px) {
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-.radar-axis-line {
-  stroke: #fcfcfc;
-  stroke-width: 0.5;
+@media (max-width: 800px) {
+  .skills-grid { grid-template-columns: 1fr; }
 }
-
-/* filled area representing competences (appears on scroll) */
-.radar-area {
-  fill: #fcfcfc;
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: 50% 50%;
-  transform: scale(0.25);
-  transition:
-    opacity .6s ease-out .15s,
-    transform .6s ease-out .15s;
-}
-
-
-
-/* labels around the circle (title + short description) */
-.skills-label {
-  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 15px;
-  text-anchor: middle;
-  fill: #000;
-  opacity: 0;
-  transition: opacity .5s ease-out .35s;
-}
-
-
-
-
-.node-main {
-  fill: #fcfcfc;   /* Hauptknoten */
-  stroke: #000;    /* Rahmen falls gewünscht */
-}
-
-.node-sub {
-  fill: #cccccc;   /* Unterknoten */
-  stroke: #333;    /* etwas dunklerer Rand */
-}
-
-
-
-.skills-force-node text {
-  fill: #000000;
-  font-family: "Roboto", sans-serif;
-  pointer-events: none;
-  font-size: 15px;
-  text-anchor: middle;
-}
-
-
-.skills-label-sub {
-  font-size: 9px;
-  fill: #fcfcfc;
-}
-
-/* when slide is active: show area + labels */
-.skills-slide.is-visible .radar-area {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.skills-slide.is-visible .skills-label {
-  opacity: 1;
-}
-
-
 
 
 
@@ -2571,15 +2518,15 @@
         layout: 'introAnimated',
         i18n: {
           en: {
-            main: "Welcome, I’m Joé. I design visual and interactive systems and experiences, guided by strategic thinking and a curious, solution-oriented approach.",
+            main: "Welcome, I’m Joé. I am a designer working at the intersection of human, digital product, and data, guided by strategic thinking and a curious, solution-oriented approach.",
             indexTitle: "About"
           },
           de: {
-            main: "Willkommen, ich bin Joé. Ich gestalte visuelle und interaktive Systeme und Erlebnisse, geprägt von strategischem Denken und einer neugierigen, lösungsorientierten Arbeitsweise.",
+            main: "Willkommen, ich bin Joé.Ich bin Designer und arbeite an der Schnittstelle zwischen Mensch, digitalem Produkt und Daten – geleitet von strategischem Denken und einer neugierigen, lösungsorientierten Haltung.",
             indexTitle: "Über"
           },
           fr: {
-            main: "Bienvenue, je suis Joé. Je conçois des systèmes et des expériences visuelles et interactives, guidés par une réflexion stratégique et une approche curieuse et orientée vers les solutions.",
+            main: "Bienvenue, je suis Joé. Je suis designer et je travaille à l’intersection entre l’humain, le digital product et les données, guidé par une réflexion stratégique et une approche curieuse et orientée solutions.",
             indexTitle: "À propos"
           }
         },
@@ -2587,27 +2534,151 @@
         
       },
 
+    /* A2) INTRO — SKILLS & COMPETENCES MAP */
+    /* A2) INTRO — SKILLS & COMPETENCES MAP */
 
-      /* A2) INTRO — SKILLS & COMPETENCES MAP */
-      {
-        type: 'text',
-        layout: 'skillsMap',
-        i18n: {
-          en: {
-            indexTitle: "Skills & competences",
-            body: "Information/interaction designer working at the intersection of digital products, data, and storytelling. I design interfaces, systems, and visualizations that make information and processes accessible, usable, and intuitive so that people can achieve their goals."
-          },
-          de: {
-            indexTitle: "Skills & Kompetenzen",
-            body: "Information- und Interaction Designer, tätig an der Schnittstelle von digitalen Produkten, Daten und Storytelling. Ich gestalte Interfaces, Systeme und Visualisierungen, die Informationen und Prozesse zugänglich, benutzbar und intuitiv machen, damit Nutzern ihre Ziele erreichen können."
-          },
-          fr: {
-            indexTitle: "Compétences & skills",
-            body: "Designer en information et interaction, travaillant à l’intersection des produits numériques, des données et du storytelling. Je conçois des interfaces, des systèmes et des visualisations qui rendent l’information et les processus accessibles, utilisables et intuitifs afin que les utilisateurs puissent atteindre leurs objectifs."
-          }
+
+
+/* A2) INTRO — SKILLS & COMPETENCES MAP */
+{
+  type: 'text',
+  layout: 'skillsMap',
+  i18n: {
+    en: {
+      indexTitle: "Skills & competences",
+      blocks: [
+        {
+          title: "1. Technical",
+          items: [
+            "UI/UX design for web and mobile",
+            "Visual communication & information design",
+            "Data visualization (interactive + static)",
+            "Prototyping (Figma, HTML/CSS/JS)",
+            "Interactive front-end components (timelines, filters, dashboards)",
+            "Design systems & component libraries",
+            "AI-assisted analysis and visual workflows"
+          ]
         },
-        showTitle: false
-      },
+        {
+          title: "2. Strategic & Research",
+          items: [
+            "User-centred design processes & iterative prototyping",
+            "Requirements analysis, problem framing & UX strategy",
+            "Systematic research and synthesis for design decisions",
+            "Clear documentation (reports, guidelines, briefs)"
+          ]
+        },
+        {
+          title: "3. Curiosity & Adaptation",
+          items: [
+            "Fast learning of new tools and methods",
+            "Ability to work across different domains (design, tech, culture, data)",
+            "Able to work for different audiences, contexts & problem types",
+            "Strong exploration & experimentation mindset"
+          ]
+        },
+        {
+          title: "4. Collaboration",
+          items: [
+            "Enjoy working in teams and group settings",
+            "Collaboration with developers, researchers & diverse audiences",
+            "Ability to explain concepts clearly — visually and verbally"
+          ]
+        }
+      ]
+    },
+
+    de: {
+      indexTitle: "Skills & Kompetenzen",
+      blocks: [
+        {
+          title: "1. Technische Kompetenzen",
+          items: [
+            "UI/UX-Design für Web und Mobile",
+            "Visuelle Kommunikation & Informationsdesign",
+            "Datenvisualisierung (interaktiv + statisch)",
+            "Prototyping (Figma, HTML/CSS/JS)",
+            "Interaktive Frontend-Komponenten (Timelines, Filter, Dashboards)",
+            "Designsysteme & Komponentenbibliotheken",
+            "KI-unterstützte Analysen und visuelle Workflows"
+          ]
+        },
+        {
+          title: "2. Strategie & Forschung",
+          items: [
+            "Nutzerzentrierte Designprozesse & iteratives Prototyping",
+            "Anforderungsanalyse, Problem-Frames & UX-Strategie",
+            "Systematische Recherche und Synthese für Designentscheidungen",
+            "Klare Dokumentation (Berichte, Guidelines, Briefings)"
+          ]
+        },
+        {
+          title: "3. Neugier & Anpassungsfähigkeit",
+          items: [
+            "Schnelles Lernen neuer Tools und Methoden",
+            "Fähigkeit, in unterschiedlichen Domänen zu arbeiten (Design, Tech, Kultur, Daten)",
+            "Arbeit für verschiedene Zielgruppen, Kontexte & Problemtypen",
+            "Ausgeprägte Explorations- und Experimentierhaltung"
+          ]
+        },
+        {
+          title: "4. Zusammenarbeit",
+          items: [
+            "Arbeitet gerne im Team und in Gruppen",
+            "Zusammenarbeit mit Entwickler:innen, Forscher:innen & unterschiedlichen Zielgruppen",
+            "Fähigkeit, Konzepte klar zu vermitteln – visuell und mündlich"
+          ]
+        }
+      ]
+    },
+
+    fr: {
+      indexTitle: "Compétences",
+      blocks: [
+        {
+          title: "1. Technique",
+          items: [
+            "Design UI/UX pour le web et le mobile",
+            "Communication visuelle & information design",
+            "Visualisation de données (interactive + statique)",
+            "Prototypage (Figma, HTML/CSS/JS)",
+            "Composants front-end interactifs (frises, filtres, tableaux de bord)",
+            "Design systems & bibliothèques de composants",
+            "Analyses et flux de travail visuels assistés par l’IA"
+          ]
+        },
+        {
+          title: "2. Stratégie & Recherche",
+          items: [
+            "Processus de design centré·e utilisateur & prototypage itératif",
+            "Analyse des besoins, cadrage du problème & stratégie UX",
+            "Recherche systématique et synthèse au service des décisions de design",
+            "Documentation claire (rapports, lignes directrices, briefs)"
+          ]
+        },
+        {
+          title: "3. Curiosité & Adaptation",
+          items: [
+            "Apprentissage rapide de nouveaux outils et méthodes",
+            "Capacité à travailler dans différents domaines (design, tech, culture, données)",
+            "Travail pour des publics, contextes & types de problèmes variés",
+            "Forte attitude d’exploration et d’expérimentation"
+          ]
+        },
+        {
+          title: "4. Collaboration",
+          items: [
+            "Apprécie le travail en équipe et en groupe",
+            "Collaboration avec développeurs, chercheurs & publics variés",
+            "Capacité à expliquer clairement les concepts — visuellement et verbalement"
+          ]
+        }
+      ]
+    }
+  },
+  showTitle: false
+},
+
 
 
 
@@ -4050,50 +4121,53 @@ if (s.layout === 'projectIntro') {
 
 
 
-// --- SKILLS / COMPETENCES FORCE DIAGRAM ---
+
+// --- SKILLS / COMPETENCES — FOUR COLLAPSING BLOCKS ---
 if (s.layout === 'skillsMap') {
   slide.classList.add('skills-slide');
 
   const wrap = document.createElement('div');
   wrap.className = 'skills-inner';
 
-  const langPack = s.i18n?.[currentLang] || s.i18n?.en || {};
-  const bodyText = langPack.body || '';
+  // GRID ONLY — NO HEADING
+  const grid = document.createElement('div');
+  grid.className = 'skills-grid';
+  wrap.appendChild(grid);
 
-  // LEFT COLUMN: text
-  const textCol = document.createElement('div');
-  textCol.className = 'skills-text';
+  // helper: render blocks for current language
+  function renderSkillsBlocks(lang) {
+    const pack   = s.i18n?.[lang] || s.i18n?.en || {};
+    const blocks = pack.blocks || [];
+    grid.innerHTML = '';
 
-  const textInner = document.createElement('div');
-  textInner.className = 'skills-text-inner';
+    blocks.forEach(block => {
+      const col = document.createElement('div');
+      col.className = 'skills-column';
 
-  const mainTextEl = document.createElement('p');
-  mainTextEl.className = 'skills-text-main';
-  mainTextEl.textContent = bodyText;
+      const title = document.createElement('h3');
+      title.className = 'skills-column-title';
+      title.textContent = block.title || '';
+      col.appendChild(title);
 
-  textInner.appendChild(mainTextEl);
-  textCol.appendChild(textInner);
+      const list = document.createElement('ul');
+      list.className = 'skills-column-list';
 
-  // RIGHT COLUMN: diagram
-  const diagramCol = document.createElement('div');
-  diagramCol.className = 'skills-diagram';
+      (block.items || []).forEach(text => {
+        const li = document.createElement('li');
+        li.className = 'skills-column-item';
+        li.textContent = text;
+        list.appendChild(li);
+      });
 
-  const diagramInner = document.createElement('div');
-  diagramInner.className = 'skills-diagram-inner';
+      col.appendChild(list);
+      grid.appendChild(col);
+    });
+  }
 
-  const svgNS  = 'http://www.w3.org/2000/svg';
-  const svgEl  = document.createElementNS(svgNS, 'svg');
+  // initial render
+  renderSkillsBlocks(currentLang);
 
-  diagramInner.appendChild(svgEl);
-  diagramCol.appendChild(diagramInner);
-
-  // assemble
-  wrap.appendChild(textCol);
-  wrap.appendChild(diagramCol);
   slide.appendChild(wrap);
-
-  // build the force diagram in this SVG
-  buildSkillsForceDiagram(svgEl);
 
   rendered.push({
     slide,
@@ -4113,12 +4187,16 @@ if (s.layout === 'skillsMap') {
     langEl,
     conf: s,
     ctaEl: null,
-    skillsTextEl: mainTextEl   // for language updates
+
+    // removed: skillsHeadingEl
+    skillsGridEl: grid,
+    renderSkillsBlocks
   });
 
   scroller.appendChild(slide);
   return;
 }
+
 
 
 
@@ -5007,10 +5085,16 @@ if (s.layout === 'contact') {
       if (r.introBodyEl)  r.introBodyEl.textContent  = langPack.body  || '';
     }
 
-    // SKILLS MAP: update left-column text
-    if (conf.layout === 'skillsMap' && r.skillsTextEl) {
-      r.skillsTextEl.textContent = langPack.body || '';
-    }
+    // SKILLS MAP: update heading + blocks when language changes
+if (conf.layout === 'skillsMap') {
+  if (r.skillsHeadingEl) {
+    r.skillsHeadingEl.textContent = uiStrings.competencesBtn[currentLang];
+  }
+  if (typeof r.renderSkillsBlocks === 'function') {
+    r.renderSkillsBlocks(currentLang);
+  }
+}
+
 
 
     // Scroll hint (used on intro + problem framing)
@@ -5281,388 +5365,6 @@ if (conf.layout === 'resultsBlock') {
 
 
 
-
-    // ===========================
-// Force-directed skills diagram (competences)
-// ===========================
-function buildSkillsForceDiagram(svgNode) {
-  const width  = window.innerWidth;
-  const height = window.innerHeight;
-
-  const svg = d3.select(svgNode)
-    .attr("viewBox", [0, 0, width, height])
-    .classed("skills-force-svg", true)
-    .style("background", "#fcfcfc");
-
-  const data = {
-    nodes: [
-      // MAIN NODES
-      {
-        id: "Digital Product & Interaction Design",
-        type: "main",
-        group: "digital",
-        label: "Digital Product &\nInteraction Design",
-        radius: 100
-      },
-      {
-        id: "Information & Visual Systems",
-        type: "main",
-        group: "information",
-        label: "Information &\nVisual Systems",
-        radius: 100
-      },
-      {
-        id: "Research & Technical Implementation",
-        type: "main",
-        group: "research",
-        label: "Research &\nTechnical Implementation",
-        radius: 100
-      },
-
-      // SUB – Digital
-      {
-        id: "UX/UI Design",
-        type: "sub",
-        group: "digital",
-        parent: "digital",
-        label: "UX/UI\nDesign",
-        radius: 70
-      },
-      {
-        id: "Interaction Design",
-        type: "sub",
-        group: "digital",
-        parent: "digital",
-        label: "Interaction\nDesign",
-        radius: 70
-      },
-      {
-        id: "User Flows & Task Modelling",
-        type: "sub",
-        group: "digital",
-        parent: "digital",
-        label: "User Flows &\nTask Modelling",
-        radius: 70
-      },
-      {
-        id: "Prototyping & Behaviours",
-        type: "sub",
-        group: "digital",
-        parent: "digital",
-        label: "Prototyping &\nBehaviours",
-        radius: 70
-      },
-      {
-        id: "Usability & Accessibility",
-        type: "sub",
-        group: "digital",
-        parent: "digital",
-        label: "Usability &\nAccessibility",
-        radius: 70
-      },
-
-      // SUB – Information
-      {
-        id: "Information Design",
-        type: "sub",
-        group: "information",
-        parent: "information",
-        label: "Information\nDesign",
-        radius: 70
-      },
-      {
-        id: "Data Visualization",
-        type: "sub",
-        group: "information",
-        parent: "information",
-        label: "Data\nVisualization",
-        radius: 70
-      },
-      {
-        id: "Diagramming & Infographics",
-        type: "sub",
-        group: "information",
-        parent: "information",
-        label: "Diagramming &\nInfographics",
-        radius: 70
-      },
-      {
-        id: "Visual Communication",
-        type: "sub",
-        group: "information",
-        parent: "information",
-        label: "Visual\nCommunication",
-        radius: 70
-      },
-
-      // SUB – Research & Technical Implementation
-      {
-        id: "Practice-based Research",
-        type: "sub",
-        group: "research",
-        parent: "research",
-        label: "Practice-based\nResearch",
-        radius: 70
-      },
-      {
-        id: "User Research",
-        type: "sub",
-        group: "research",
-        parent: "research",
-        label: "User\nResearch",
-        radius: 70
-      },
-      {
-        id: "Front-end Development (basics)",
-        type: "sub",
-        group: "research",
-        parent: "research",
-        label: "Front-end\nDevelopment\n(basics)",
-        radius: 70
-      }
-    ],
-    links: [
-      // connections between main nodes (triangle)
-      {
-        source: "Digital Product & Interaction Design",
-        target: "Information & Visual Systems",
-        group: "mains"
-      },
-      {
-        source: "Digital Product & Interaction Design",
-        target: "Research & Technical Implementation",
-        group: "mains"
-      },
-      {
-        source: "Information & Visual Systems",
-        target: "Research & Technical Implementation",
-        group: "mains"
-      },
-
-      // Digital
-      {
-        source: "Digital Product & Interaction Design",
-        target: "UX/UI Design",
-        group: "digital"
-      },
-      {
-        source: "Digital Product & Interaction Design",
-        target: "Interaction Design",
-        group: "digital"
-      },
-      {
-        source: "Digital Product & Interaction Design",
-        target: "User Flows & Task Modelling",
-        group: "digital"
-      },
-      {
-        source: "Digital Product & Interaction Design",
-        target: "Prototyping & Behaviours",
-        group: "digital"
-      },
-      {
-        source: "Digital Product & Interaction Design",
-        target: "Usability & Accessibility",
-        group: "digital"
-      },
-
-      // Information
-      {
-        source: "Information & Visual Systems",
-        target: "Information Design",
-        group: "information"
-      },
-      {
-        source: "Information & Visual Systems",
-        target: "Data Visualization",
-        group: "information"
-      },
-      {
-        source: "Information & Visual Systems",
-        target: "Diagramming & Infographics",
-        group: "information"
-      },
-      {
-        source: "Information & Visual Systems",
-        target: "Visual Communication",
-        group: "information"
-      },
-
-      // Research
-      {
-        source: "Research & Technical Implementation",
-        target: "Practice-based Research",
-        group: "research"
-      },
-      {
-        source: "Research & Technical Implementation",
-        target: "User Research",
-        group: "research"
-      },
-      {
-        source: "Research & Technical Implementation",
-        target: "Front-end Development (basics)",
-        group: "research"
-      }
-    ]
-  };
-
-  const nodes = data.nodes.map(d => ({ ...d }));
-  const links = data.links.map(d => ({ ...d }));
-
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  const simulation = d3.forceSimulation(nodes)
-    .force("link", d3.forceLink(links).id(d => d.id).distance(200))
-    .force("charge", d3.forceManyBody().strength(-500))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(d => d.radius + 10))
-    .on("tick", ticked);
-
-  const link = svg.append("g")
-    .attr("stroke-linecap", "round")
-    .selectAll("line")
-    .data(links)
-    .join("line")
-      .attr("class", "skills-force-link");
-
-  const node = svg.append("g")
-    .selectAll("g")
-    .data(nodes)
-    .join("g")
-      .attr("class", d => "skills-force-node " + d.type);
-
-  node.append("circle")
-    .attr("r", d => d.radius)
-    .attr("fill", d => d.type === "main" ? "#f0f0f0" : "#cccccc");
-
-  // Multiline labels, vertically centered
-  // Multiline labels via <tspan>
-  node.append("text")
-    .selectAll("tspan")
-    .data(d => d.label.split("\n"))
-    .join("tspan")
-      .attr("x", 0)
-      .attr("dy", (d, i) => (i === 0 ? "-0.3em" : "1.1em"))
-      .text(d => d);
-
-  // dragging
-  node.call(
-    d3.drag()
-      .on("start", (event, d) => {
-        if (!event.active) simulation.alphaTarget(0.3).restart();
-        d.fx = d.x;
-        d.fy = d.y;
-      })
-      .on("drag", (event, d) => {
-        const r = d.radius || 40;
-        d.fx = clamp(event.x, r, width - r);
-        d.fy = clamp(event.y, r, height - r);
-      })
-      .on("end", (event, d) => {
-        if (!event.active) simulation.alphaTarget(0);
-        d.fx = null;
-        d.fy = null;
-      })
-  );
-
-  // click highlighting
-  let activeGroup = null;
-
-  node
-    .filter(d => d.type === "main")
-    .style("cursor", "pointer")
-    .on("click", (event, d) => {
-      if (activeGroup === d.group) {
-        activeGroup = null;
-        resetStyles();
-      } else {
-        activeGroup = d.group;
-        applyActiveStyles();
-      }
-    });
-
-  function resetStyles() {
-    node.select("circle")
-      .attr("fill", d => (d.type === "main" ? "#f0f0f0" : "#cccccc"))
-      .attr("opacity", 1);
-
-    node.select("text")
-      .attr("fill", "#000000")
-      .attr("opacity", 1);
-
-    link
-      .attr("stroke", "#fcfcfc")
-      .attr("stroke-opacity", 1);
-  }
-
-  function applyActiveStyles() {
-    node.select("circle")
-      .attr("fill", d => {
-        if (!activeGroup) return d.type === "main" ? "#f0f0f0" : "##cccccc";
-        if (d.type === "main") {
-          return d.group === activeGroup ? "#f0f0f0" : "#ffffff";
-        }
-        if (d.type === "sub") {
-          return d.parent === activeGroup ? "#cccccc" : "#ffffff";
-        }
-      })
-      .attr("opacity", d => {
-        if (!activeGroup) return 1;
-        if (d.type === "main") return d.group === activeGroup ? 1 : 0.4;
-        if (d.type === "sub")  return d.parent === activeGroup ? 1 : 0.25;
-      });
-
-    node.select("text")
-      .attr("fill", d => {
-        if (!activeGroup) return "#000000";
-        if (d.type === "main") {
-          return d.group === activeGroup ? "#000000" : "#f5f5f5";
-        }
-        if (d.type === "sub") {
-          return d.parent === activeGroup ? "#000000" : "#f5f5f5";
-        }
-      })
-      .attr("opacity", d => {
-        if (!activeGroup) return 1;
-        if (d.type === "main") return d.group === activeGroup ? 1 : 0.5;
-        if (d.type === "sub")  return d.parent === activeGroup ? 1 : 0.3;
-      });
-
-    link
-      .attr("stroke", l => {
-        if (!activeGroup)      return "#f0f0f0";
-        if (l.group === activeGroup) return "#f0f0f0";
-        if (l.group === "mains")     return "#dddddd";
-        return "#dddddd";
-      })
-      .attr("stroke-opacity", l => {
-        if (!activeGroup)         return 1;
-        if (l.group === activeGroup) return 1;
-        if (l.group === "mains")     return 0;
-        return 0;
-      });
-  }
-
-  function ticked() {
-    nodes.forEach(d => {
-      const r = d.radius || 40;
-      d.x = clamp(d.x, r, width - r);
-      d.y = clamp(d.y, r, height - r);
-    });
-
-    link
-      .attr("x1", d => d.source.x)
-      .attr("y1", d => d.source.y)
-      .attr("x2", d => d.target.x)
-      .attr("y2", d => d.target.y);
-
-    node
-      .attr("transform", d => `translate(${d.x},${d.y})`);
-  }
-}
 
 
 
