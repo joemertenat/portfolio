@@ -484,33 +484,37 @@
 .slide.skills-slide {
   background: #fcfcfc;
   display: flex;
-  align-items: flex-start;     /* top-anchored, so expansion goes down */
+  align-items: flex-start;      /* top-anchored, so expansion goes down */
   justify-content: center;
   padding: 0;
   position: relative;
   height: 100vh;
 }
 
+/* fixed inner width + side margins */
 .skills-inner {
+  max-width: 1500px;            /* 🔒 fixed content width */
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start; /* start from top */
+  align-items: stretch;
+  justify-content: flex-start;
   gap: 2rem;
 
-  /* this sets the collapsed grid roughly in the vertical middle */
-  padding-top: 45vh;           /* tweak 24–28vh to taste */
-  padding-bottom: 0;
+  /* vertical centering of collapsed grid + horizontal margins */
+  padding: 45vh 8vw 0;          /* top | left/right | bottom */
+  box-sizing: border-box;
 }
 
-/* Four-column grid */
+/* grid always spans that fixed inner width */
 .skills-grid {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.6rem;
 }
+
 
 /* Block container (collapsed height) */
 .skills-column {
@@ -635,7 +639,7 @@
 
 .skills-topbar {
   position: absolute;
-  top: 47.7%;
+  top: 47.9%;
   right: 2vw;
   transform: translateY(-50%);
   z-index: 1000;
