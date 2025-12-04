@@ -277,37 +277,7 @@
 
 
 
-    /* --- SKILLS INTRO PAGE (overlapping circles) --- */
-
-
-/* --- SKILLS FORCE DIAGRAM (competences page) --- */
-.skills-force-svg {
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-  display: block;
-}
-
-.skills-force-link {
-  stroke: #000;
-  stroke-width: 1.5px;
-  stroke-linecap: round;
-}
-
-.skills-force-node circle {
-  stroke: #000;
-  stroke-width: 1px;
-  cursor: grab;
-}
-
-.skills-force-node text {
-  fill: #ffffff;
-  font-family: "Roboto", sans-serif;
-  pointer-events: none;
-  font-size: 11px;
-  text-anchor: middle;
-}
-
+  
 
 
 
@@ -507,30 +477,33 @@
 
 
 
+/* SKILLS */
 
+/* ===== COMPETENCES PAGE — BASE ===== */
 
-
-
-/* --- SKILLS / COMPETENCES — FOUR COLLAPSING BLOCKS --- */
 .slide.skills-slide {
   background: #fcfcfc;
   display: flex;
-  align-items: flex-start;      /* anchor content to the top */
+  align-items: flex-start;     /* top-anchored, so expansion goes down */
   justify-content: center;
-  padding: 0 8vw;
+  padding: 0;
+  position: relative;
+  height: 100vh;
 }
 
 .skills-inner {
-  max-width: 1180px;
   width: 100%;
-  /* no min-height / no vertical centering => prevents jumping */
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;  /* keep top-anchored */
-  gap: 2.5rem;
-  padding: 40vh 0 10vh;         /* visually centered but stable */
-}
+  align-items: center;
+  justify-content: flex-start; /* start from top */
+  gap: 2rem;
 
+  /* this sets the collapsed grid roughly in the vertical middle */
+  padding-top: 45vh;           /* tweak 24–28vh to taste */
+  padding-bottom: 0;
+}
 
 /* Four-column grid */
 .skills-grid {
@@ -539,32 +512,31 @@
   gap: 1.6rem;
 }
 
-/* Block container */
+/* Block container (collapsed height) */
 .skills-column {
   background: #ffffff;
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(0,0,0,0.06);
-  padding: 1.1rem 1.4rem;
+  padding: 1.2rem 1.4rem;
   box-shadow: 0 10px 26px rgba(0,0,0,0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-
   transition:
     box-shadow 0.25s ease,
     border-color 0.25s ease,
-    transform 0.25s ease,
     max-height 0.35s ease;
 
-  max-height: 3.2rem;          /* default: only title visible */
+  max-height: 3.2rem;          /* collapsed: only title visible */
 }
 
-/* Hover: expand downwards, position stays fixed */
+/* Hover: bottom drops down, top stays where it is */
 .skills-column:hover {
-  transform: translateY(-3px);
+  /* IMPORTANT: no vertical transform */
+  transform: none;
   box-shadow: 0 14px 40px rgba(0,0,0,0.06);
   border-color: rgba(0,0,0,0.12);
-  max-height: 380px;          /* enough space to reveal sub-points */
+  max-height: 380px;           /* grows downward */
 }
 
 /* Title */
@@ -575,10 +547,9 @@
   color: #111;
 }
 
-/* Items container (revealed by max-height change on parent) */
+/* Items list */
 .skills-column-list {
-  margin: 1.3rem 0 0 0;
-
+  margin: 1rem 0 0 0;
   padding: 0;
   list-style: none;
   display: flex;
@@ -586,7 +557,7 @@
   gap: 0.35rem;
 }
 
-/* Sub-competence line with a small dot */
+/* Sub-competence line with dot */
 .skills-column-item {
   position: relative;
   padding-left: 1.1rem;
@@ -596,7 +567,6 @@
   color: #111;
 }
 
-/* Nicely designed dot */
 .skills-column-item::before {
   content: '';
   position: absolute;
@@ -609,15 +579,136 @@
   opacity: 0.7;
 }
 
-/* Responsive */
+/* ===== DIAGRAM MODE FULLSCREEN ===== */
+
+.skills-diagram-container {
+  width: 100vw;
+  height: 100vh;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skills-diagram-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.skills-diagram-links line {
+  stroke: #ffffff;
+  stroke-width: 1;
+  stroke-opacity: 0.7;
+}
+
+.skills-diagram-label {
+  fill: #ffffff;
+  font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 11px;
+  pointer-events: auto;
+}
+
+.skills-diagram-label.category {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Dark background only in diagram mode, and center everything */
+.skills-slide.skills-diagram-mode {
+  background: #292929;
+  align-items: center; /* re-center vertically in diagram view */
+}
+
+.skills-slide.skills-diagram-mode .skills-inner {
+  padding-top: 0;
+  padding-bottom: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ===== BUTTON (KEEPING YOUR OLD DESIGN) ===== */
+
+.skills-topbar {
+  position: absolute;
+  top: 47.7%;
+  right: 2vw;
+  transform: translateY(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.skills-mode-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #111;
+  border: 1px solid rgba(0,0,0,0.4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+
+  cursor: none;
+}
+
+.skills-mode-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+  stroke-width: 1.6;
+  fill: none;
+}
+
+.skills-mode-btn svg circle {
+  fill: #fff;
+  stroke-width: 1;
+}
+
+
+/* ===== RESPONSIVE ===== */
+
 @media (max-width: 1100px) {
-  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  .skills-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 800px) {
-  .skills-grid { grid-template-columns: 1fr; }
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
+/* TABLET – HORIZONTAL (LANDSCAPE) – keep same behavior */
+@media (min-width: 768px) and (max-width: 1366px) and (orientation: landscape) {
+  .slide.skills-slide {
+    padding: 0;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .skills-inner {
+    max-width: 1180px;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2rem;
+    padding-top: 26vh;
+    padding-bottom: 0;
+  }
+}
 
 
 
@@ -2054,45 +2145,6 @@
     font-size: 12px;
   }
 
-.slide.skills-slide {
-    padding: 0 6vw;      /* slightly narrower padding than desktop */
-  }
-
-  .skills-inner {
-    max-width: 1000px;   /* slightly narrower overall container */
-    width: 100%;
-    height: 78vh;        /* slightly shorter to fit browser chrome */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 6vw;            /* keep good separation between columns */
-  }
-
-  /* Left text column stays unchanged */
-  .skills-text {
-    flex: 0 0 42%;       /* slightly wider text column to balance */
-  }
-
-  /* Right diagram column — SMALLER + more right margin */
-  .skills-diagram {
-    flex: 0 0 42%;       /* smaller width than desktop (48%) */
-    margin-right: 8vw;   /* MORE margin on the right side */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* Inner diagram size — smaller for iPad */
-  .skills-diagram-inner {
-    width: min(70vh, 70vw);   /* was 110vh/110vw → reduced */
-    aspect-ratio: 1 / 1;
-  }
-
-  /* Optional: shift diagram slightly to the left for perfect balance */
-  .skills-force-svg {
-    transform: translateX(-8%);
-  }
-}
 
 
 
@@ -2548,7 +2600,7 @@
       indexTitle: "Skills & competences",
       blocks: [
         {
-          title: "1. Technical",
+          title: "Technical",
           items: [
             "UI/UX for web & mobile",
             "Visual & information design",
@@ -2559,7 +2611,7 @@
           ]
         },
         {
-          title: "2. Strategic & Research",
+          title: "Strategic & Research",
           items: [
             "User-centred, iterative design",
             "Requirements analysis & problem framing",
@@ -2568,7 +2620,7 @@
           ]
         },
         {
-          title: "3. Curiosity & Adaptation",
+          title: "Curiosity & Adaptation",
           items: [
             "Fast learner",
             "Comfortable across domains",
@@ -2577,7 +2629,7 @@
           ]
         },
         {
-          title: "4. Collaboration",
+          title: "Collaboration",
           items: [
             "Team-oriented",
             "Works well with developers & researchers",
@@ -2591,7 +2643,7 @@
       indexTitle: "Skills & Kompetenzen",
       blocks: [
         {
-          title: "1. Technische Kompetenzen",
+          title: "Technische Kompetenzen",
           items: [
             "UI/UX für Web & Mobile",
             "Visuelles & Informationsdesign",
@@ -2602,7 +2654,7 @@
           ]
         },
         {
-          title: "2. Strategie & Forschung",
+          title: "Strategie & Forschung",
           items: [
             "Nutzerzentriertes, iteratives Design",
             "Anforderungsanalyse & Problemframing",
@@ -2611,7 +2663,7 @@
           ]
         },
         {
-          title: "3. Neugier & Anpassungsfähigkeit",
+          title: "Neugier & Anpassungsfähigkeit",
           items: [
             "Schnelle Auffassungsgabe",
             "Sicher in verschiedenen Domänen",
@@ -2620,7 +2672,7 @@
           ]
         },
         {
-          title: "4. Zusammenarbeit",
+          title: "Zusammenarbeit",
           items: [
             "Teamorientiert",
             "Gute Zusammenarbeit mit Entwickler:innen & Forscher:innen",
@@ -2634,7 +2686,7 @@
       indexTitle: "Compétences",
       blocks: [
         {
-          title: "1. Technique",
+          title: "Technique",
           items: [
             "UI/UX pour le web & le mobile",
             "Design visuel & information design",
@@ -2645,7 +2697,7 @@
           ]
         },
         {
-          title: "2. Stratégie & Recherche",
+          title: "Stratégie & Recherche",
           items: [
             "Design itératif centré utilisateur",
             "Analyse des besoins & cadrage du problème",
@@ -2654,7 +2706,7 @@
           ]
         },
         {
-          title: "3. Curiosité & Adaptation",
+          title: "Curiosité & Adaptation",
           items: [
             "Apprentissage rapide",
             "À l’aise dans différents domaines",
@@ -2663,7 +2715,7 @@
           ]
         },
         {
-          title: "4. Collaboration",
+          title: "Collaboration",
           items: [
             "Orienté équipe",
             "Bonne collaboration avec développeurs & chercheurs",
@@ -3057,21 +3109,7 @@
         type: 'group',
         layout: 'solutionsRow',
         solutions: [
-           {
-            type: 'img',
-            src: 'assets/img/project2_solution1.png',
-            i18n: {
-              en: {
-                title: "Designing a flow accessible to users with low digital literacy."
-              },
-              de: {
-                title: "Gestaltung eines Ablaufs, der auch für Nutzer mit geringer digitaler Kompetenz zugänglich ist."
-              },
-              fr: {
-                title: "Concevoir un parcours accessible aux utilisateurs ayant une faible maîtrise du numérique."
-              }
-            }
-          },
+           
           {
             type: 'video',
             src: 'assets/video/project2_video1.mp4',
@@ -4117,19 +4155,69 @@ if (s.layout === 'projectIntro') {
 
 
 
-
-
-// --- SKILLS / COMPETENCES — FOUR COLLAPSING BLOCKS ---
+// --- SKILLS / COMPETENCES — BLOCKS + DIAGRAM TOGGLE ---
 if (s.layout === 'skillsMap') {
   slide.classList.add('skills-slide');
 
   const wrap = document.createElement('div');
   wrap.className = 'skills-inner';
 
-  // GRID ONLY — NO HEADING
+  // ── TOP BAR: RIGHT-ALIGNED TOGGLE BUTTON ─────────────────────────────
+  const topBar = document.createElement('div');
+  topBar.className = 'skills-topbar';
+
+  const modeBtn = document.createElement('button');
+  modeBtn.className = 'skills-mode-btn';
+  modeBtn.type = 'button';
+  topBar.appendChild(modeBtn);
+  wrap.appendChild(topBar);
+
+  // inline SVG icons
+  const iconDiagram = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="6" cy="12" r="2" />
+      <circle cx="12" cy="6" r="2" />
+      <circle cx="18" cy="12" r="2" />
+      <circle cx="12" cy="18" r="2" />
+      <line x1="6" y1="12" x2="12" y2="6" />
+      <line x1="12" y1="6" x2="18" y2="12" />
+      <line x1="6" y1="12" x2="12" y2="18" />
+      <line x1="12" y1="18" x2="18" y2="12" />
+    </svg>
+  `;
+
+  const iconList = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <line x1="6" y1="8"  x2="18" y2="8"  />
+      <line x1="6" y1="12" x2="18" y2="12" />
+      <line x1="6" y1="16" x2="18" y2="16" />
+    </svg>
+  `;
+
+  function updateModeButton(isDiagramMode) {
+    if (isDiagramMode) {
+      modeBtn.innerHTML = iconList;
+      modeBtn.setAttribute('aria-label', 'Show list view');
+    } else {
+      modeBtn.innerHTML = iconDiagram;
+      modeBtn.setAttribute('aria-label', 'Show diagram view');
+    }
+  }
+
+  // ── BLOCKS CONTAINER (DEFAULT VIEW) ──────────────────────────────────
   const grid = document.createElement('div');
   grid.className = 'skills-grid';
   wrap.appendChild(grid);
+
+  // ── DIAGRAM CONTAINER (HIDDEN BY DEFAULT) ────────────────────────────
+  const diagramWrap = document.createElement('div');
+  diagramWrap.className = 'skills-diagram-container';
+  diagramWrap.style.display = 'none';
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.classList.add('skills-diagram-svg');
+  diagramWrap.appendChild(svg);
+  wrap.appendChild(diagramWrap);
 
   // helper: render blocks for current language
   function renderSkillsBlocks(lang) {
@@ -4161,8 +4249,38 @@ if (s.layout === 'skillsMap') {
     });
   }
 
-  // initial render
+  // helper: render / rebuild diagram for current language
+  function renderSkillsDiagram(lang) {
+    const pack   = s.i18n?.[lang] || s.i18n?.en || {};
+    const blocks = pack.blocks || [];
+    buildCompetencesDiagram(svg, blocks);
+  }
+
+  // initial render: blocks
   renderSkillsBlocks(currentLang);
+
+  // ── TOGGLE LOGIC ─────────────────────────────────────────────────────
+  let isDiagram = false;
+  updateModeButton(isDiagram); // initial icon = diagram
+
+  modeBtn.addEventListener('click', () => {
+    isDiagram = !isDiagram;
+
+    if (isDiagram) {
+      // go to diagram mode
+      slide.classList.add('skills-diagram-mode');
+      grid.style.display        = 'none';
+      diagramWrap.style.display = 'block';
+      renderSkillsDiagram(currentLang);
+    } else {
+      // back to blocks
+      slide.classList.remove('skills-diagram-mode');
+      grid.style.display        = 'grid';
+      diagramWrap.style.display = 'none';
+    }
+
+    updateModeButton(isDiagram);
+  });
 
   slide.appendChild(wrap);
 
@@ -4184,15 +4302,17 @@ if (s.layout === 'skillsMap') {
     langEl,
     conf: s,
     ctaEl: null,
-
-    // removed: skillsHeadingEl
     skillsGridEl: grid,
-    renderSkillsBlocks
+    skillsDiagramEl: svg,
+    renderSkillsBlocks,
+    renderSkillsDiagram
   });
 
   scroller.appendChild(slide);
   return;
 }
+
+
 
 
 
@@ -5082,13 +5202,16 @@ if (s.layout === 'contact') {
       if (r.introBodyEl)  r.introBodyEl.textContent  = langPack.body  || '';
     }
 
-    // SKILLS MAP: update heading + blocks when language changes
-if (conf.layout === 'skillsMap') {
-  if (r.skillsHeadingEl) {
-    r.skillsHeadingEl.textContent = uiStrings.competencesBtn[currentLang];
-  }
+  
+    if (conf.layout === 'skillsMap') {
+  // update the list blocks to the current language
   if (typeof r.renderSkillsBlocks === 'function') {
     r.renderSkillsBlocks(currentLang);
+  }
+
+  // if a diagram exists, rebuild it with the new language
+  if (typeof r.renderSkillsDiagram === 'function') {
+    r.renderSkillsDiagram(currentLang);
   }
 }
 
@@ -5359,6 +5482,230 @@ if (conf.layout === 'resultsBlock') {
 
 
 
+
+
+
+
+ function buildCompetencesDiagram(svgEl, blocks) {
+  const svg = d3.select(svgEl);
+  svg.selectAll('*').remove(); // clear previous diagram
+
+  const width  = svgEl.clientWidth  || 900;
+  const height = svgEl.clientHeight || 520;
+
+  svg
+    .attr('viewBox', `0 0 ${width} ${height}`)
+    .attr('preserveAspectRatio', 'xMidYMid meet');
+
+  // -----------------------------
+  // NODES & LINKS
+  // -----------------------------
+
+  const nodes = [];
+  const links = [];
+
+  // create category + item nodes
+  blocks.forEach((block, i) => {
+    const catId = `cat-${i}`;
+    nodes.push({
+      id: catId,
+      label: block.title || '',
+      type: 'category',
+      group: i
+    });
+
+    (block.items || []).forEach((itemText, j) => {
+      const itemId = `item-${i}-${j}`;
+      nodes.push({
+        id: itemId,
+        label: itemText,
+        type: 'item',
+        group: i,
+        parentId: catId
+      });
+
+      // link category -> item
+      links.push({
+        source: catId,
+        target: itemId,
+        kind: 'cat-item'
+      });
+    });
+  });
+
+  // fully connect categories (each category linked to all others)
+  const categoryNodes = nodes.filter(n => n.type === 'category');
+  for (let i = 0; i < categoryNodes.length; i++) {
+    for (let j = i + 1; j < categoryNodes.length; j++) {
+      links.push({
+        source: categoryNodes[i].id,
+        target: categoryNodes[j].id,
+        kind: 'cat-cat'
+      });
+    }
+  }
+
+  // -----------------------------
+  // DRAWING
+  // -----------------------------
+
+  const link = svg
+    .append('g')
+    .attr('class', 'skills-diagram-links')
+    .selectAll('line')
+    .data(links)
+    .enter()
+    .append('line');
+
+  const nodeLabels = svg
+    .append('g')
+    .attr('class', 'skills-diagram-nodes')
+    .selectAll('text')
+    .data(nodes)
+    .enter()
+    .append('text')
+    .attr('class', d =>
+      d.type === 'category'
+        ? 'skills-diagram-label category'
+        : 'skills-diagram-label item'
+    )
+    .text(d => d.label)
+    .each(function (d) {
+      d.bbox = this.getBBox(); // capture text size for centering
+    });
+
+  // -----------------------------
+  // SIMULATION
+  // -----------------------------
+
+  // choose where you want to center the diagram (slightly left)
+const targetX = width * 0.46;   // 40% of width → more left
+const targetY = height * 0.50;  // middle vertically
+
+const simulation = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links)
+    .id(d => d.id)
+    .distance(l => l.kind === 'cat-cat' ? 170 : 120)
+    .strength(0.9))
+  .force('charge', d3.forceManyBody().strength(-260))
+  .force('collision', d3.forceCollide().radius(d =>
+    d.type === 'category' ? 80 : 60
+  ))
+  .force('center', d3.forceCenter(targetX, targetY))
+  .force('x', d3.forceX(targetX).strength(0.08))
+  .force('y', d3.forceY(targetY).strength(0.08));
+
+
+  simulation.on('tick', () => {
+    // connect links to CENTER of text bboxes
+    link
+      .attr('x1', d => {
+        const bbox = d.source.bbox;
+        return d.source.x + ((bbox && bbox.width) || 0) / 2;
+      })
+      .attr('y1', d => {
+        const bbox = d.source.bbox;
+        return d.source.y - ((bbox && bbox.height) || 0) / 2;
+      })
+      .attr('x2', d => {
+        const bbox = d.target.bbox;
+        return d.target.x + ((bbox && bbox.width) || 0) / 2;
+      })
+      .attr('y2', d => {
+        const bbox = d.target.bbox;
+        return d.target.y - ((bbox && bbox.height) || 0) / 2;
+      });
+
+    nodeLabels
+      .attr('x', d => d.x)
+      .attr('y', d => {
+        // small correction so bottom labels don't stack completely
+        if (d.y > height * 0.75) return d.y + 1.2;
+        return d.y;
+      });
+  });
+
+  // optional: let layout settle then freeze for readability
+  setTimeout(() => {
+    simulation.stop();
+  }, 1500);
+
+  // -----------------------------
+  // FOCUS / INTERACTIVITY
+  // -----------------------------
+
+  function setActiveCategory(catId) {
+    const activeGroup = nodes.find(n => n.id === catId)?.group ?? 0;
+
+    // very smooth visual transition
+    const tr = d3.transition()
+      .duration(420)
+      .ease(d3.easeCubicOut);
+
+    // nodes opacity + size
+    nodeLabels
+      .transition(tr)
+      .attr('opacity', d => {
+        if (d.type === 'category') {
+          return d.id === catId ? 1 : 0.25;
+        }
+        // items: full if same group, dim otherwise
+        return d.group === activeGroup ? 1 : 0.15;
+      })
+      .attr('font-size', d => {
+        if (d.type === 'category') {
+          return d.id === catId ? 14 : 12;
+        }
+        return 11;
+      });
+
+    // links opacity + width
+    link
+      .transition(tr)
+      .attr('opacity', l => {
+        const s = l.source;
+        const tNode = l.target;
+
+        const isActiveCatCat =
+          l.kind === 'cat-cat' && (s.id === catId || tNode.id === catId);
+        const isActiveCatItem =
+          l.kind === 'cat-item' && (s.id === catId || tNode.parentId === catId);
+
+        if (isActiveCatItem) return 0.85;   // strongest: active comp → items
+        if (isActiveCatCat)  return 0.45;   // softer: comp ↔ comp
+        return 0.10;                        // background links
+      })
+      .attr('stroke-width', l => {
+        const s = l.source;
+        const tNode = l.target;
+
+        const isActiveCatCat =
+          l.kind === 'cat-cat' && (s.id === catId || tNode.id === catId);
+        const isActiveCatItem =
+          l.kind === 'cat-item' && (s.id === catId || tNode.parentId === catId);
+
+        if (isActiveCatItem) return 1.6;
+        if (isActiveCatCat)  return 1.0;
+        return 0.6;
+      });
+
+    // no simulation.alpha / no restart → positions stay stable
+  }
+
+  // initial active category = first one
+  if (categoryNodes.length > 0) {
+    setActiveCategory(categoryNodes[0].id);
+  }
+
+  // hover logic: hovering a category or one of its items focuses that group
+  nodeLabels.on('mouseenter', (event, d) => {
+    const catId =
+      d.type === 'category'
+        ? d.id
+        : d.parentId || `cat-${d.group}`;
+    setActiveCategory(catId);
+  });
+}
 
 
 
